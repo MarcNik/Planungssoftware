@@ -1,1 +1,3 @@
 # Planungssoftware
+
+READ ME
