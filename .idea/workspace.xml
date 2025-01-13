@@ -4,8 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="66b5b3e6-062a-4f60-9eb8-a8b9abe06214" name="Changes" comment="Test">
-      <change afterPath="$PROJECT_DIR$/backend/index.js" afterDir="false" />
+    <list default="true" id="66b5b3e6-062a-4f60-9eb8-a8b9abe06214" name="Changes" comment="Set up project structure with Express backend and Next.js frontend. Created a basic API route (/api/message) in the backend and fetched data from it in the frontend. Basic communication between server and client established.">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -38,20 +39,20 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "main",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "vcs.Git",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;vcs.Git&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -70,7 +71,8 @@
       <workItem from="1733393865834" duration="102000" />
       <workItem from="1733393990809" duration="805000" />
       <workItem from="1736784539221" duration="737000" />
-      <workItem from="1736785577520" duration="1211000" />
+      <workItem from="1736785577520" duration="1704000" />
+      <workItem from="1736787285736" duration="115000" />
     </task>
     <task id="LOCAL-00001" summary="Test">
       <option name="closed" value="true" />
@@ -112,7 +114,23 @@
       <option name="project" value="LOCAL" />
       <updated>1736784650728</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="Set up project structure with Express backend and Next.js frontend. Created a basic API route (/api/message) in the backend and fetched data from it in the frontend. Basic communication between server and client established.">
+      <option name="closed" value="true" />
+      <created>1736786851262</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1736786851262</updated>
+    </task>
+    <task id="LOCAL-00007" summary="Set up project structure with Express backend and Next.js frontend. Created a basic API route (/api/message) in the backend and fetched data from it in the frontend. Basic communication between server and client established.">
+      <option name="closed" value="true" />
+      <created>1736786897410</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1736786897410</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -131,6 +149,7 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Test" />
-    <option name="LAST_COMMIT_MESSAGE" value="Test" />
+    <MESSAGE value="Set up project structure with Express backend and Next.js frontend. Created a basic API route (/api/message) in the backend and fetched data from it in the frontend. Basic communication between server and client established." />
+    <option name="LAST_COMMIT_MESSAGE" value="Set up project structure with Express backend and Next.js frontend. Created a basic API route (/api/message) in the backend and fetched data from it in the frontend. Basic communication between server and client established." />
   </component>
 </project>
