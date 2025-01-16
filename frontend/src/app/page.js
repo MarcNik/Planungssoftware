@@ -1,113 +1,120 @@
 "use client";
 
 import { useState } from "react";
-import Calendar from "react-calendar";
 
 export default function Page() {
-    // State to manage input fields and stored appointments
-    const [date, setDate] = useState(""); // Stores the selected date
-    const [time, setTime] = useState(""); // Stores the selected time
-    const [description, setDescription] = useState(""); // Stores the description of the appointment
-    const [appointments, setAppointments] = useState([]); // Array to store all saved appointments
-    const [selectedDate, setSelectedDate] = useState(new Date()); // Tracks the currently selected date in the calendar
-    const [confirmation, setConfirmation] = useState(""); // Displays a confirmation message after saving an appointment
+    const [username, setUsername] = useState(""); // State für den Benutzernamen
+    const [password, setPassword] = useState(""); // State für das Passwort
+    const [email, setEmail] = useState(""); // State für die E-Mail-Adresse (nur für Registrierung)
+    const [error, setError] = useState(""); // State für Fehlermeldungen
+    const [isRegistering, setIsRegistering] = useState(false); // State um zwischen Login und Registrierung zu wechseln
+    const [is2FAEnabled, setIs2FAEnabled] = useState(false); // State für den 2FA-Schalter
 
-    // Function to save a new appointment
-    const handleSaveAppointment = () => {
-        // Validate that all input fields are filled
-        if (!date || !time || !description) {
-            alert("Please fill in all fields!"); // Alert user if any field is empty
+    // Funktion zur Handhabung des Login-Formulars
+    const handleLogin = (e) => {
+        e.preventDefault();
+        if (!username || !password) {
+            setError("Please enter both username and password.");
             return;
         }
 
-        // Create a new appointment object
-        const newAppointment = {
-            date,
-            time,
-            description,
-        };
-
-        // Add the new appointment to the existing list
-        setAppointments([...appointments, newAppointment]);
-        setConfirmation("Appointment successfully saved!"); // Set confirmation message
-
-        // Reset input fields
-        setDate("");
-        setTime("");
-        setDescription("");
+        setError("");
+        console.log("Logging in with:", { username, password });
+        // Redirect nach erfolgreichem Login
+        window.location.href = "/dashboard";
     };
 
-    // Handle calendar date selection and sync with input field
-    const handleDateSelection = (selectedDate) => {
-        setSelectedDate(selectedDate); // Update the selected date in the calendar
-        setDate(selectedDate.toISOString().split("T")[0]); // Update the date input field
-    };
+    // Funktion zur Handhabung des Registrierungsformulars
+    const handleRegister = (e) => {
+        e.preventDefault();
+        if (!username || !password || !email) {
+            setError("Please fill in all fields.");
+            return;
+        }
 
-    // Filter appointments for the currently selected date in the calendar
-    const appointmentsForSelectedDate = appointments.filter(
-        (appointment) => appointment.date === selectedDate.toISOString().split("T")[0]
-    );
+        setError("");
+        console.log("Registering with:", { username, password, email, is2FAEnabled });
+        // Redirect nach erfolgreicher Registrierung
+        window.location.href = "/dashboard";
+    };
 
     return (
         <div>
-            <h1>Add Appointment</h1>
+            <h1>{isRegistering ? "Register" : "Login"}</h1>
+            <form onSubmit={isRegistering ? handleRegister : handleLogin}>
+                {/* Benutzernamen-Eingabe */}
+                <label>
+                    Username:
+                    <input
+                        type="text"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                    />
+                </label>
+                <br />
 
-            {/* Input form for new appointments */}
-            <label>
-                Date:
-                <input
-                    type="date"
-                    value={date}
-                    onChange={(e) => setDate(e.target.value)}
-                />
-            </label>
-            <br />
+                {/* Passwort-Eingabe */}
+                <label>
+                    Password:
+                    <input
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                    />
+                </label>
+                <br />
 
-            <label>
-                Time:
-                <input
-                    type="time"
-                    value={time}
-                    onChange={(e) => setTime(e.target.value)}
-                />
-            </label>
-            <br />
+                {/* E-Mail-Adresse (nur bei Registrierung) */}
+                {isRegistering && (
+                    <>
+                        <label>
+                            Email:
+                            <input
+                                type="email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                            />
+                        </label>
+                        <br />
+                    </>
+                )}
 
-            <label>
-                Description:
-                <textarea
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                />
-            </label>
-            <br />
+                {/* 2FA-Schalter (nur bei Registrierung) */}
+                {isRegistering && (
+                    <>
+                        <label>
+                            Enable Two-Factor Authentication:
+                            <input
+                                type="checkbox"
+                                checked={is2FAEnabled}
+                                onChange={() => setIs2FAEnabled(!is2FAEnabled)}
+                            />
+                        </label>
+                        <br />
+                    </>
+                )}
 
-            {/* Button to save the appointment */}
-            <button onClick={handleSaveAppointment}>Save Appointment</button>
+                {/* Fehlermeldung */}
+                {error && <p style={{ color: "red" }}>{error}</p>}
 
-            {/* Display confirmation message if set */}
-            {confirmation && <p>{confirmation}</p>}
+                {/* Absenden-Button */}
+                <button type="submit">{isRegistering ? "Register" : "Login"}</button>
+            </form>
 
-            {/* Calendar view */}
-            <h2>Calendar</h2>
-            <Calendar
-                onChange={handleDateSelection} // Update selected date and sync with input
-                value={selectedDate} // Current selected date
-            />
-
-            {/* Display appointments for the selected date */}
-            <h3>Appointments for {selectedDate.toLocaleDateString()}</h3>
-            {appointmentsForSelectedDate.length > 0 ? (
-                <ul>
-                    {appointmentsForSelectedDate.map((appointment, index) => (
-                        <li key={index}>
-                            <strong>{appointment.time}</strong>: {appointment.description}
-                        </li>
-                    ))}
-                </ul>
-            ) : (
-                <p>No appointments for this date.</p>
-            )}
+            {/* Umschalten zwischen Login und Registrierung */}
+            <p>
+                {isRegistering ? (
+                    <span>
+                        Already have an account?{" "}
+                        <button onClick={() => setIsRegistering(false)}>Login</button>
+                    </span>
+                ) : (
+                    <span>
+                        Don't have an account?{" "}
+                        <button onClick={() => setIsRegistering(true)}>Register</button>
+                    </span>
+                )}
+            </p>
         </div>
     );
 }

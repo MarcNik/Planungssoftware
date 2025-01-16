@@ -4,11 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="66b5b3e6-062a-4f60-9eb8-a8b9abe06214" name="Changes" comment="Update README.md">
+    <list default="true" id="66b5b3e6-062a-4f60-9eb8-a8b9abe06214" name="Changes" comment="Description:&#10;&#10;Integrated calendar date selection with the date input field.&#10;Updated the date input automatically when a day is selected on the calendar.&#10;Ensured seamless interaction between the calendar and the appointment form.&#10;Maintained existing functionality for saving and displaying appointments.">
+      <change afterPath="$PROJECT_DIR$/frontend/src/app/dashboard/page.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/app/favicon.ico" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/app/globals.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/app/layout.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/layout.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/app/page.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/page.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/app/page.module.css" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -48,22 +51,33 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "Node.js.page.js.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
     "git-widget-placeholder": "feature/add-calendar-integration",
+    "last_opened_file_path": "/Users/marc/WebstormProjects/Planungssoftware/frontend/src/app",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "vcs.Git",
+    "settings.editor.selected.configurable": "ml.llm.LLMConfigurable",
+    "ts.external.directory.path": "/Applications/WebStorm.app/Contents/plugins/javascript-plugin/jsLanguageServicesImpl/external",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/frontend/src/app" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/frontend/src/app/dashboard" />
+    </key>
+  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-d6986cc7102b-e768b9ed790e-JavaScript-WS-243.21565.180" />
+        <option value="bundled-js-predefined-d6986cc7102b-deb605915726-JavaScript-WS-243.22562.222" />
       </set>
     </attachedChunks>
   </component>
@@ -81,7 +95,8 @@
       <workItem from="1736785577520" duration="1704000" />
       <workItem from="1736787285736" duration="1245000" />
       <workItem from="1736861415726" duration="55000" />
-      <workItem from="1736861472478" duration="1814000" />
+      <workItem from="1736861472478" duration="2234000" />
+      <workItem from="1736863750204" duration="2387000" />
     </task>
     <task id="LOCAL-00001" summary="Test">
       <option name="closed" value="true" />
@@ -147,7 +162,15 @@
       <option name="project" value="LOCAL" />
       <updated>1736787705413</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="Description:&#10;&#10;Integrated calendar date selection with the date input field.&#10;Updated the date input automatically when a day is selected on the calendar.&#10;Ensured seamless interaction between the calendar and the appointment form.&#10;Maintained existing functionality for saving and displaying appointments.">
+      <option name="closed" value="true" />
+      <created>1736863377395</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1736863377395</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -168,6 +191,7 @@
     <MESSAGE value="Test" />
     <MESSAGE value="Set up project structure with Express backend and Next.js frontend. Created a basic API route (/api/message) in the backend and fetched data from it in the frontend. Basic communication between server and client established." />
     <MESSAGE value="Update README.md" />
-    <option name="LAST_COMMIT_MESSAGE" value="Update README.md" />
+    <MESSAGE value="Description:&#10;&#10;Integrated calendar date selection with the date input field.&#10;Updated the date input automatically when a day is selected on the calendar.&#10;Ensured seamless interaction between the calendar and the appointment form.&#10;Maintained existing functionality for saving and displaying appointments." />
+    <option name="LAST_COMMIT_MESSAGE" value="Description:&#10;&#10;Integrated calendar date selection with the date input field.&#10;Updated the date input automatically when a day is selected on the calendar.&#10;Ensured seamless interaction between the calendar and the appointment form.&#10;Maintained existing functionality for saving and displaying appointments." />
   </component>
 </project>
