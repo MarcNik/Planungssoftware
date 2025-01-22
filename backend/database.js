@@ -32,54 +32,84 @@ function hashPassword(password) {
 }
 
 // Prüfen, ob ein Username existiert
-function doesUsernameExist(username, callback) {
+async function doesUsernameExist(username) {
     const query = `SELECT COUNT(*) AS count FROM Users WHERE username = ?`;
-    db.get(query, [username], (err, row) => {
-        if (err) {
-            console.error('Error checking username:', err.message);
-            return callback(false, err);
-        }
-        callback(row.count > 0);
-    });
+
+    try {
+        const row = await new Promise((resolve, reject) => {
+            db.get(query, [username], (err, row) => {
+                if (err) reject(err);
+                else resolve(row);
+            });
+        });
+
+        return row.count > 0;
+    } catch (err) {
+        return false;
+    }
 }
 
 // Prüfen, ob eine E-Mail existiert
-function doesEmailExist(email, callback) {
+async function doesEmailExist(email) {
     const query = `SELECT COUNT(*) AS count FROM Users WHERE email = ?`;
-    db.get(query, [email], (err, row) => {
-        if (err) {
-            console.error('Error checking email:', err.message);
-            return callback(false, err);
-        }
-        callback(row.count > 0);
-    });
+    
+    try {
+        const row = await new Promise((resolve, reject) => {
+            db.get(query, [email], (err, row) => {
+                if (err) reject(err);
+                else resolve(row);
+            });
+        });
+        
+        return row.count > 0;
+    } catch (err) {
+        return false;
+    }
 }
 
 // Benutzer hinzufügen
-function addUser(username, password, email, is2FAEnabled, callback) {
+async function addUser(username, password, email, is2FAEnabled) {
     const insertSQL = `
         INSERT INTO Users (username, password, email, Is2FAEnabled)
         VALUES (?, ?, ?, ?)
     `;
-    db.run(insertSQL, [username, password, email, is2FAEnabled], function(err) {
-        if (err) {
-            console.error('Error adding user:', err.message);
-            return callback(err.message);
-        }
-        callback(null, `User added with ID: ${this.lastID}`);
-    });
+
+    try {
+        await new Promise((resolve, reject) => {
+            db.run(insertSQL, [username, password, email, is2FAEnabled], function(err) {
+                if (err) reject(err);
+                else resolve(`User added with ID: ${this.lastID}`);
+            });
+        });
+
+        return `User added successfully with ID: ${this.lastID}`;
+    } catch (err) {
+        console.error('Error adding user:', err.message);
+        throw new Error(err.message);
+    }
 }
 
-// Prüfen, ob ein Username ein bestimmtes Passwort hat
-function doesPasswordMatch(username, password, callback) {
-    const query = `SELECT COUNT(*) AS count FROM Users WHERE username = ? AND password = ?`;
-    db.get(query, [username, password], (err, row) => {
-        if (err) {
-            console.error('Error checking password:', err.message);
-            return callback(false, err);
+// Passwort zurückgeben
+async function getPasswordHashFromDB(username) {
+    const query = `SELECT password FROM Users WHERE username = ?`;
+    try {
+        const row = await new Promise((resolve, reject) => {
+            db.get(query, [username], (err, row) => {
+                if (err) reject(err);
+                else resolve(row);
+            });
+        });
+
+        // Falls kein Benutzer mit dem Benutzernamen gefunden wurde
+        if (!row) {
+            throw new Error('User not found');
         }
-        callback(row.count > 0);
-    });
+
+        return row.password; // Rückgabe des Passwort-Hashes
+    } catch (err) {
+        console.error('Fehler beim Abrufen des Passwort-Hashes:', err.message);
+        throw err;
+    }
 }
 
 // Datenbankverbindung schließen
@@ -99,5 +129,5 @@ module.exports = {
     doesUsernameExist,
     doesEmailExist,
     addUser,
-    doesPasswordMatch,
+    getPasswordHashFromDB,
 }

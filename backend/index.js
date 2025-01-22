@@ -1,13 +1,15 @@
 const express = require('express');
 const next = require('next');
 const path = require('path');
-const { createTable, hashPassword, doesUsernameExist, doesEmailExist, addUser, doesPasswordMatch } = require('./database.js');
+const { createTable, hashPassword, doesUsernameExist, doesEmailExist, addUser, getPasswordHashFromDB } = require('./database.js');
 
 const port = 5001;
 
 const dev = process.env.NODE_ENV !== 'production';
 const app = next({ dev, dir: path.join(__dirname, '../frontend') });
 const handle = app.getRequestHandler();
+
+createTable();
 
 app.prepare().then(() => {
   const server = express();
@@ -16,7 +18,7 @@ app.prepare().then(() => {
   server.use(express.json());
   server.use('/public', express.static(path.join(__dirname, 'frontend/public')));
 
-  server.post('/api/register', (req, res) => {
+  server.post('/api/register', async (req, res) => {
     createTable();
 
     const { email, password, username, is2FAEnabled } = req.body;
@@ -28,24 +30,32 @@ app.prepare().then(() => {
     // Beispiel: Datenbankeintrag simulieren
     console.log('Neuer Benutzer registriert:', { email, username, is2FAEnabled, password });
 
-    // Antwort senden
-    res.status(201).json({ message: 'Benutzer erfolgreich registriert.' });
+    try {
+      res.status(201).json({ message: 'Benutzer erfolgreich registriert.' });
+    } catch (err) {
+        console.error('Fehler bei der Registrierung:', err.message);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
   });
 
-  server.post('/api/login', (req, res) => {
+  server.post('/api/login', async (req, res) => {
     createTable();
 
     const { username, password } = req.body;
 
     if (!username || !password) {
-      //return res.status(400).json({ error: 'Benutzername und Passwort sind erforderlich.' });
+      return res.status(400).json({ error: 'Benutzername und Passwort sind erforderlich.' });
     }
 
     // Beispiel: Benutzerüberprüfung simulieren
     console.log('Benutzer eingeloggt:', { username, password });
 
-    // Antwort senden
-    res.status(200).json({ message: 'Login erfolgreich.' });
+    try {
+      res.status(200).json({ message: 'Login erfolgreich.' });
+    } catch (err) {
+        console.error('Fehler bei dem Login:', err.message);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
   });
 
   server.all('*', (req, res) => {
