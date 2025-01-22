@@ -2,6 +2,6 @@
 # Execute with source serverStart.sh
 cd ./frontend
 npm install
-cd ../backend
+cd ./backend
 npm install
 node index.js 
