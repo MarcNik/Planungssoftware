@@ -19,6 +19,10 @@ export default function Page() {
         setSelectedDate(new Date());
     }, []);
 
+    function hashPassword(password) {
+        return crypto.createHash('sha256').update(password).digest('hex');
+    }
+
     // Funktion, um einen neuen Termin zu speichern
     const handleSaveAppointment = () => {
         // Überprüfen, ob alle Eingabefelder ausgefüllt sind

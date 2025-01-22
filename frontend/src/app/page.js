@@ -11,32 +11,101 @@ export default function Page() {
     const [isRegistering, setIsRegistering] = useState(false); // State um zwischen Login und Registrierung zu wechseln
     const [is2FAEnabled, setIs2FAEnabled] = useState(false); // State für den 2FA-Schalter
 
+    async function sha256(ascii) {
+        // encode as UTF-8
+        const msgBuffer = new TextEncoder().encode(ascii);                    
+
+        // hash the message
+        const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+
+        // convert ArrayBuffer to Array
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+
+        // convert bytes to hex string                  
+        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        return hashHex;
+    }
+
+    async function hashPassword(password) {
+        return await sha256(password);
+    }
+
     // Funktion zur Handhabung des Login-Formulars
-    const handleLogin = (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
         if (!username || !password) {
             setError("Please enter both username and password.");
             return;
         }
 
+        var hashedPassword = await hashPassword(password);
+
         setError("");
         console.log("Logging in with:", { username, password });
-        // Redirect nach erfolgreichem Login
-        window.location.href = "/dashboard";
+        
+        try {
+            const response = await fetch('/api/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username, password: hashedPassword }),
+            });
+    
+            if (!response.ok) {
+                const errorData = await response.json();
+                setError(errorData.error || 'Login failed.');
+                return;
+            }
+    
+            const result = await response.json();
+            console.log('Login successful:', result);
+    
+            // Redirect nach erfolgreichem Login
+            window.location.href = "/dashboard";
+        } catch (error) {
+            console.error('Error during login:', error);
+            setError('An error occurred during login.');
+        }
     };
 
     // Funktion zur Handhabung des Registrierungsformulars
-    const handleRegister = (e) => {
+    const handleRegister = async (e) => {
         e.preventDefault();
         if (!username || !password || !email) {
             setError("Please fill in all fields.");
             return;
         }
 
+        var hashedPassword = await hashPassword(password);
+
         setError("");
         console.log("Registering with:", { username, password, email, is2FAEnabled });
-        // Redirect nach erfolgreicher Registrierung
-        window.location.href = "/dashboard";
+        
+        try {
+            const response = await fetch('/api/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username, password: hashedPassword, email, is2FAEnabled }),
+            });
+    
+            if (!response.ok) {
+                const errorData = await response.json();
+                setError(errorData.error || 'Login failed.');
+                return;
+            }
+    
+            const result = await response.json();
+            console.log('Login successful:', result);
+    
+            // Redirect nach erfolgreicher Registrierung
+            window.location.href = "/dashboard";
+        } catch (error) {
+            console.error('Error during login:', error);
+            setError('An error occurred during login.');
+        }
     };
 
     return (
