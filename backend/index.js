@@ -14,6 +14,7 @@ app.prepare().then(() => {
   server.use('/public', express.static(path.join(__dirname, 'frontend/public')));
 
   server.post('/api/register', (req, res) => {
+    /*
     const { email, password, username, is2FAEnable } = req.body;
 
     if (!email || !password || !username || is2FAEnable === undefined) {
@@ -25,9 +26,11 @@ app.prepare().then(() => {
 
     // Antwort senden
     res.status(201).json({ message: 'Benutzer erfolgreich registriert.' });
+    */
   });
 
   server.post('/api/login', (req, res) => {
+    /*
     const { username, password } = req.body;
 
     if (!username || !password) {
@@ -39,9 +42,10 @@ app.prepare().then(() => {
 
     // Antwort senden
     res.status(200).json({ message: 'Login erfolgreich.' });
+    */
   });
 
-  server.all('/', (req, res) => {
+  server.all('*', (req, res) => {
     return handle(req, res);
   });
 
