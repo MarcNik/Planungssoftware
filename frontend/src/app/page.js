@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import './styles/loginStyle.css';
 
 export default function Page() {
     const [username, setUsername] = useState(""); // State für den Benutzernamen
@@ -39,11 +40,11 @@ export default function Page() {
     };
 
     return (
-        <div>
-            <h1>{isRegistering ? "Register" : "Login"}</h1>
+        <div className="BackgroundLogin">
+            <h1 className="TitleFont">{isRegistering ? "Register" : "Login"}</h1>
             <form onSubmit={isRegistering ? handleRegister : handleLogin}>
                 {/* Benutzernamen-Eingabe */}
-                <label>
+                <label className="InputFontStacked">
                     Username:
                     <input
                         type="text"
@@ -54,7 +55,7 @@ export default function Page() {
                 <br />
 
                 {/* Passwort-Eingabe */}
-                <label>
+                <label className="InputFontStacked">
                     Password:
                     <input
                         type="password"
@@ -67,7 +68,7 @@ export default function Page() {
                 {/* E-Mail-Adresse (nur bei Registrierung) */}
                 {isRegistering && (
                     <>
-                        <label>
+                        <label className="InputFontStacked">
                             Email:
                             <input
                                 type="email"
@@ -82,8 +83,8 @@ export default function Page() {
                 {/* 2FA-Schalter (nur bei Registrierung) */}
                 {isRegistering && (
                     <>
-                        <label>
-                            Enable Two-Factor Authentication:
+                        <label className="InputFontSideBySide">
+                            Enable Two-Factor Authentication
                             <input
                                 type="checkbox"
                                 checked={is2FAEnabled}
@@ -95,23 +96,23 @@ export default function Page() {
                 )}
 
                 {/* Fehlermeldung */}
-                {error && <p style={{ color: "red" }}>{error}</p>}
+                {error && <p style={{ color: "red" }} className="ErrorFont">{error}</p>}
 
                 {/* Absenden-Button */}
-                <button type="submit">{isRegistering ? "Register" : "Login"}</button>
+                <button className="ButtonDesign" type="submit">{isRegistering ? "Register" : "Login"}</button>
             </form>
 
             {/* Umschalten zwischen Login und Registrierung */}
             <p>
                 {isRegistering ? (
-                    <span>
+                    <span className="InputFontStacked">
                         Already have an account?{" "}
-                        <button onClick={() => setIsRegistering(false)}>Login</button>
+                        <button className="ButtonDesign" onClick={() => setIsRegistering(false)}>Login</button>
                     </span>
                 ) : (
-                    <span>
+                    <span className="InputFontStacked">
                         Don't have an account?{" "}
-                        <button onClick={() => setIsRegistering(true)}>Register</button>
+                        <button className="ButtonDesign" onClick={() => setIsRegistering(true)}>Register</button>
                     </span>
                 )}
             </p>

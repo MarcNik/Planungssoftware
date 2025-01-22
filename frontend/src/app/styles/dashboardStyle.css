@@ -1,0 +1,162 @@
+/* styling of whole body */
+body {
+    background-color: rgb(26, 26, 26);
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    margin-top: 1%;
+    margin-bottom: 30%;
+    margin-left: 15%;
+    margin-right: 15%;
+}
+
+/* dashboard styling */
+.BackgroundDashboard {
+    width: 30vw;
+    min-height: 250px;
+    background: rgba(0, 0, 0, 0.134);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+}
+
+/* fontstyling for text marked with className="TitleFont" */
+.TitleFont{
+    font-size: 25px;
+    font-weight: bold;
+    color: #ffffff;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    margin-top: 40px;
+}
+
+/* fontstyling for text marked with className="TimeFont" */
+.TimeFont{
+    font-size: 16px;
+    font-weight: bold;
+    color: #ffffff;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    margin-top: 5px;
+    margin-right: 10px;
+}
+
+/* fontstyling for text marked with className="InputFontSideBySide"
+everything with this class is formatted side by side */
+.InputFontSideBySide{
+    margin-top: 5px;
+    margin-bottom: 5px;
+    font-size: 15px;
+    font-weight: bold;
+    color: #ffffff;;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    display: flex;
+    flex-direction: column;
+}
+
+/* fontstyling for text marked with className="InputFontStacked"
+everything with this class is formatted one under the other */
+.InputFontStacked{
+    font-size: 15px;
+    font-weight: bold;
+    color: #ffffff;;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    margin-top: 10px;
+}
+
+/* fontstyling for text marked with className="ErrorFont"
+for error message */
+.ErrorFont{
+    font-size: 15px;
+    font-weight: bold;
+    color: red;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    margin-top: 3%;
+    margin-bottom: 0%;
+}
+
+/* design for the buttons*/
+.ButtonDesign{
+    background: rgba(255, 255, 255, 0.062);
+    font-weight: bold;
+    color: #ffffff;
+    border: 0px solid #ffffff;
+    padding: 6px 12px;
+    font-size: 14px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.1s ease, color 0.1s ease;
+    margin-top: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* buttondesign when hovered over */
+.ButtonDesign:hover {
+    background-color: #ffffffdd;
+    color: rgb(0, 0, 0);
+    transform: scale(1.05);
+}
+
+/* styling for whole form */
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+/* styling for input fields */
+input[type="date"],
+input[type="time"],
+textarea[type="description"]{
+    width: 100%;
+    padding: 5px;
+    border: none;
+    border-radius: 5px;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+    font-size: 14px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-weight: bold;
+}
+
+/* styling for input fields in focus */
+input[type="date"]:focus,
+input[type="time"]:focus,
+textarea[type="description"]:focus {
+    outline: none;
+    border-color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* checkbox design */
+input[type="checkbox"] {
+    width: 15px;
+    height: 15px;
+    margin-right: 10px;
+    accent-color: #000000;
+    background-color: #d3d3d3;
+    border: 1px solid #aaa;
+    border-radius: 3px;
+}
+
+/* checkbox design when checked*/
+input[type="checkbox"]:checked {
+    background-color: #000000;
+    border-color: #000000;
+}

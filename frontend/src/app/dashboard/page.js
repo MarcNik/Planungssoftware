@@ -2,6 +2,9 @@
 
 import { useState, useEffect } from "react";
 import Calendar from "react-calendar";
+import '../styles/dashboardStyle.css';
+import 'react-calendar/dist/Calendar.css';
+import '../styles/calendar.css';
 
 export default function Page() {
     const [date, setDate] = useState(""); // Speichert das ausgewählte Datum im YYYY-MM-DD Format
@@ -65,10 +68,10 @@ export default function Page() {
 
     return (
         <div>
-            <h1>Add Appointment</h1>
+            <h1 className="TitleFont">Add Appointment</h1>
 
             {/* Formular zur Eingabe neuer Termine */}
-            <label>
+            <label className="InputFontSideBySide">
                 Date:
                 <input
                     type="date"
@@ -78,7 +81,7 @@ export default function Page() {
             </label>
             <br />
 
-            <label>
+            <label className="InputFontSideBySide">
                 Time:
                 <input
                     type="time"
@@ -88,9 +91,10 @@ export default function Page() {
             </label>
             <br />
 
-            <label>
+            <label className="InputFontSideBySide">
                 Description:
                 <textarea
+                    type="description"
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                 />
@@ -98,30 +102,34 @@ export default function Page() {
             <br />
 
             {/* Button zum Speichern des Termins */}
-            <button onClick={handleSaveAppointment}>Save Appointment</button>
+            <button className="ButtonDesign" onClick={handleSaveAppointment}>Save Appointment</button>
 
             {/* Bestätigungsnachricht anzeigen, wenn gesetzt */}
-            {confirmation && <p>{confirmation}</p>}
+            {confirmation && <p className="InputFontSideBySide">{confirmation}</p>}
 
             {/* Kalenderansicht */}
-            <h2>Calendar</h2>
+            <h2 className="TitleFont">Calendar</h2>
             <Calendar
                 onChange={handleDateSelection} // Datum im Kalender aktualisieren
                 value={selectedDate} // Das aktuell ausgewählte Datum
             />
 
             {/* Termine für das ausgewählte Datum anzeigen */}
-            <h3>Appointments for {selectedDate.toLocaleDateString()}</h3>
+            <h3 className="TitleFont">Appointments for {selectedDate.toLocaleDateString("en-US", { 
+        day: "2-digit", 
+        month: "2-digit", 
+        year: "numeric" 
+    })}</h3>
             {appointmentsForSelectedDate.length > 0 ? (
-                <ul>
+                <ul className="InputFontSideBySide">
                     {appointmentsForSelectedDate.map((appointment, index) => (
                         <li key={index}>
-                            <strong>{appointment.time}</strong>: {appointment.description}
+                            <strong className="TimeFont">{appointment.time}</strong> {appointment.description}
                         </li>
                     ))}
                 </ul>
             ) : (
-                <p>No appointments for this date.</p>
+                <p className="InputFontSideBySide">No appointments for this date.</p>
             )}
         </div>
     );
