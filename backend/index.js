@@ -1,8 +1,9 @@
 const express = require('express');
 const next = require('next');
 const path = require('path');
+const { createTable, hashPassword, doesUsernameExist, doesEmailExist, addUser, doesPasswordMatch } = require('./database.js');
 
-const port = 5000;
+const port = 5001;
 
 const dev = process.env.NODE_ENV !== 'production';
 const app = next({ dev, dir: path.join(__dirname, '../frontend') });
@@ -16,6 +17,8 @@ app.prepare().then(() => {
   server.use('/public', express.static(path.join(__dirname, 'frontend/public')));
 
   server.post('/api/register', (req, res) => {
+    createTable();
+
     const { email, password, username, is2FAEnabled } = req.body;
 
     if (!email || !password || !username || is2FAEnabled === undefined) {
@@ -30,6 +33,8 @@ app.prepare().then(() => {
   });
 
   server.post('/api/login', (req, res) => {
+    createTable();
+
     const { username, password } = req.body;
 
     if (!username || !password) {
