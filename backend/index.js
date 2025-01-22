@@ -2,7 +2,7 @@ const express = require('express');
 const next = require('next');
 const path = require('path');
 
-const port = 5000;
+const port = 5001;
 
 const dev = process.env.NODE_ENV !== 'production';
 const app = next({ dev, dir: path.join(__dirname, '../frontend') });
