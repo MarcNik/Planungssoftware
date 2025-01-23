@@ -3,9 +3,9 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Calendar from "react-calendar";
-import '../styles/dashboardStyle.css';
-import 'react-calendar/dist/Calendar.css';
-import '../styles/calendar.css';
+import "../styles/dashboardStyle.css";
+import "react-calendar/dist/Calendar.css";
+import "../styles/calendar.css";
 
 export default function Page() {
     const router = useRouter(); // Router-Instance von Next.js
@@ -13,7 +13,7 @@ export default function Page() {
     const [time, setTime] = useState(""); // Speichert die ausgewählte Uhrzeit
     const [description, setDescription] = useState(""); // Speichert die Beschreibung des Termins
     const [appointments, setAppointments] = useState([]); // Array zur Speicherung aller Termine
-    const [selectedDate, setSelectedDate] = useState(null); // Speichert das aktuell ausgewählte Datum im Kalender
+    const [selectedDate, setSelectedDate] = useState(new Date()); // Speichert das aktuell ausgewählte Datum im Kalender
     const [confirmation, setConfirmation] = useState(""); // Zeigt eine Bestätigungsnachricht nach dem Speichern eines Termins
     const [isMenuOpen, setIsMenuOpen] = useState(false); // Zustand für das Profil-Side-Menü
 
@@ -25,11 +25,6 @@ export default function Page() {
             router.push("https://localhost:5001/");
         }
     }, [router]);
-
-    useEffect(() => {
-        // Setzt das initial ausgewählte Datum nach dem Laden der Komponente (um SSR-Mismatch zu vermeiden)
-        setSelectedDate(new Date());
-    }, []);
 
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
@@ -51,6 +46,21 @@ export default function Page() {
         setDate("");
         setTime("");
         setDescription("");
+    };
+
+    // Handler für den Kalender-Klick
+    const handleCalendarChange = (selectedDate) => {
+        setSelectedDate(selectedDate);
+        // Setzt das Datum im Eingabefeld im YYYY-MM-DD-Format (UTC)
+        const formattedDate = formatDateToLocal(selectedDate);
+        setDate(formattedDate);
+    };
+
+    // Hilfsfunktion, um das Datum in YYYY-MM-DD zu formatieren
+    const formatDateToLocal = (date) => {
+        const newDate = new Date(date);
+        newDate.setMinutes(newDate.getMinutes() - newDate.getTimezoneOffset()); // Offset entfernen
+        return newDate.toISOString().split("T")[0]; // Nur das Datum im Format YYYY-MM-DD
     };
 
     return (
@@ -112,17 +122,23 @@ export default function Page() {
             {/* Kalenderansicht */}
             <h2 className="TitleFont">Calendar</h2>
             <Calendar
-                onChange={(date) => setSelectedDate(new Date(date))}
+                onChange={handleCalendarChange} // Kalender-Handler
                 value={selectedDate}
             />
 
             <h3 className="TitleFont">Appointments for {selectedDate?.toLocaleDateString()}</h3>
             {/* Termine */}
             {appointments
-                .filter((appt) => appt.date === selectedDate?.toISOString().split("T")[0])
+                .filter(
+                    (appt) =>
+                        new Date(appt.date).toISOString().split("T")[0] ===
+                        selectedDate?.toISOString().split("T")[0]
+                )
                 .map((appt, index) => (
                     <div key={index}>
-                        <p>{appt.time} - {appt.description}</p>
+                        <p>
+                            {appt.time} - {appt.description}
+                        </p>
                     </div>
                 ))}
         </div>
