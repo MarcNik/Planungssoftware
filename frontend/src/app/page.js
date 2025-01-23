@@ -8,29 +8,21 @@ export default function Page() {
     const [password, setPassword] = useState(""); // State für das Passwort
     const [email, setEmail] = useState(""); // State für die E-Mail-Adresse (nur für Registrierung)
     const [error, setError] = useState(""); // State für Fehlermeldungen
-    const [isRegistering, setIsRegistering] = useState(false); // State um zwischen Login und Registrierung zu wechseln
+    const [success, setSuccess] = useState(""); // State für Erfolgsnachrichten
+    const [isRegistering, setIsRegistering] = useState(false); // State, um zwischen Login und Registrierung zu wechseln
     const [is2FAEnabled, setIs2FAEnabled] = useState(false); // State für den 2FA-Schalter
 
     async function sha256(ascii) {
-        // encode as UTF-8
-        const msgBuffer = new TextEncoder().encode(ascii);                    
-
-        // hash the message
+        const msgBuffer = new TextEncoder().encode(ascii);
         const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-
-        // convert ArrayBuffer to Array
         const hashArray = Array.from(new Uint8Array(hashBuffer));
-
-        // convert bytes to hex string                  
-        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-        return hashHex;
+        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
     }
 
     async function hashPassword(password) {
         return await sha256(password);
     }
 
-    // Funktion zur Handhabung des Login-Formulars
     const handleLogin = async (e) => {
         e.preventDefault();
         if (!username || !password) {
@@ -38,11 +30,10 @@ export default function Page() {
             return;
         }
 
-        var hashedPassword = await hashPassword(password);
-
+        const hashedPassword = await hashPassword(password);
         setError("");
-        console.log("Logging in with:", { username, password });
-        
+        setSuccess("");
+
         try {
             const response = await fetch('/api/login', {
                 method: 'POST',
@@ -51,25 +42,26 @@ export default function Page() {
                 },
                 body: JSON.stringify({ username, password: hashedPassword }),
             });
-    
+
             if (!response.ok) {
                 const errorData = await response.json();
                 setError(errorData.error || 'Login failed.');
                 return;
             }
-    
+
             const result = await response.json();
-            console.log('Login successful:', result);
-    
-            // Redirect nach erfolgreichem Login
-            window.location.href = "/dashboard";
+            localStorage.setItem("authToken", result.token); // Speichere Token im localStorage
+            setSuccess("Login successful! Redirecting...");
+
+            setTimeout(() => {
+                window.location.href = "/dashboard"; // Redirect nach erfolgreichem Login
+            }, 2000);
         } catch (error) {
             console.error('Error during login:', error);
             setError('An error occurred during login.');
         }
     };
 
-    // Funktion zur Handhabung des Registrierungsformulars
     const handleRegister = async (e) => {
         e.preventDefault();
         if (!username || !password || !email) {
@@ -77,11 +69,10 @@ export default function Page() {
             return;
         }
 
-        var hashedPassword = await hashPassword(password);
-
+        const hashedPassword = await hashPassword(password);
         setError("");
-        console.log("Registering with:", { username, password, email, is2FAEnabled });
-        
+        setSuccess("");
+
         try {
             const response = await fetch('/api/register', {
                 method: 'POST',
@@ -90,21 +81,23 @@ export default function Page() {
                 },
                 body: JSON.stringify({ username, password: hashedPassword, email, is2FAEnabled }),
             });
-    
+
             if (!response.ok) {
                 const errorData = await response.json();
-                setError(errorData.error || 'Login failed.');
+                setError(errorData.error || 'Registration failed.');
                 return;
             }
-    
+
             const result = await response.json();
-            console.log('Login successful:', result);
-    
-            // Redirect nach erfolgreicher Registrierung
-            window.location.href = "/dashboard";
+            localStorage.setItem("authToken", result.token); // Speichere Token im localStorage
+            setSuccess("Registration successful! Redirecting...");
+
+            setTimeout(() => {
+                window.location.href = "/dashboard"; // Redirect nach erfolgreicher Registrierung
+            }, 2000);
         } catch (error) {
-            console.error('Error during login:', error);
-            setError('An error occurred during login.');
+            console.error('Error during registration:', error);
+            setError('An error occurred during registration.');
         }
     };
 
@@ -166,6 +159,9 @@ export default function Page() {
 
                 {/* Fehlermeldung */}
                 {error && <p style={{ color: "red" }} className="ErrorFont">{error}</p>}
+
+                {/* Erfolgsnachricht */}
+                {success && <p style={{ color: "green" }} className="SuccessFont">{success}</p>}
 
                 {/* Absenden-Button */}
                 <button className="ButtonDesign" type="submit">{isRegistering ? "Register" : "Login"}</button>

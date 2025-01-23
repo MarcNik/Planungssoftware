@@ -17,6 +17,15 @@ export default function Page() {
     const [confirmation, setConfirmation] = useState(""); // Zeigt eine Bestätigungsnachricht nach dem Speichern eines Termins
     const [isMenuOpen, setIsMenuOpen] = useState(false); // Zustand für das Profil-Side-Menü
 
+    // Token-Überprüfung
+    useEffect(() => {
+        const token = localStorage.getItem("authToken");
+
+        if (!token) {
+            router.push("https://localhost:5001/");
+        }
+    }, [router]);
+
     useEffect(() => {
         // Setzt das initial ausgewählte Datum nach dem Laden der Komponente (um SSR-Mismatch zu vermeiden)
         setSelectedDate(new Date());
@@ -27,7 +36,21 @@ export default function Page() {
     };
 
     const handleLogout = () => {
-        window.location.href = "http://localhost:5001/";
+        localStorage.removeItem("authToken"); // Token aus localStorage entfernen
+        window.location.href = "https://localhost:5001/";
+    };
+
+    const saveAppointment = () => {
+        if (!date || !time || !description) {
+            setConfirmation("Please fill in all fields to save an appointment.");
+            return;
+        }
+
+        setAppointments([...appointments, { date, time, description }]);
+        setConfirmation("Appointment saved successfully!");
+        setDate("");
+        setTime("");
+        setDescription("");
     };
 
     return (
@@ -74,14 +97,13 @@ export default function Page() {
             <label className="InputFontSideBySide">
                 Description:
                 <textarea
-                    type="description"
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                 />
             </label>
             <br />
 
-            <button className="ButtonDesign" onClick={() => setAppointments([...appointments, { date, time, description }])}>
+            <button className="ButtonDesign" onClick={saveAppointment}>
                 Save Appointment
             </button>
 
@@ -96,6 +118,13 @@ export default function Page() {
 
             <h3 className="TitleFont">Appointments for {selectedDate?.toLocaleDateString()}</h3>
             {/* Termine */}
+            {appointments
+                .filter((appt) => appt.date === selectedDate?.toISOString().split("T")[0])
+                .map((appt, index) => (
+                    <div key={index}>
+                        <p>{appt.time} - {appt.description}</p>
+                    </div>
+                ))}
         </div>
     );
 }
