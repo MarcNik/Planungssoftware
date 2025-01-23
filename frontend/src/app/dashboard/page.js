@@ -8,19 +8,20 @@ import "react-calendar/dist/Calendar.css";
 import "../styles/calendar.css";
 
 export default function Page() {
-    const router = useRouter(); // Router-Instance von Next.js
-    const [date, setDate] = useState(""); // Speichert das ausgewählte Datum im YYYY-MM-DD Format
-    const [time, setTime] = useState(""); // Speichert die ausgewählte Uhrzeit
-    const [description, setDescription] = useState(""); // Speichert die Beschreibung des Termins
-    const [appointments, setAppointments] = useState([]); // Array zur Speicherung aller Termine
-    const [selectedDate, setSelectedDate] = useState(new Date()); // Speichert das aktuell ausgewählte Datum im Kalender
-    const [confirmation, setConfirmation] = useState(""); // Zeigt eine Bestätigungsnachricht nach dem Speichern eines Termins
-    const [isMenuOpen, setIsMenuOpen] = useState(false); // Zustand für das Profil-Side-Menü
+    const router = useRouter();
+    const [date, setDate] = useState("");
+    const [time, setTime] = useState("");
+    const [description, setDescription] = useState("");
+    const [appointments, setAppointments] = useState([]);
+    const [selectedDate, setSelectedDate] = useState(new Date());
+    const [confirmation, setConfirmation] = useState("");
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [username, setUsername] = useState("JohnDoe");
+    const [email, setEmail] = useState("john.doe@example.com");
 
-    // Token-Überprüfung
     useEffect(() => {
         const token = localStorage.getItem("authToken");
-
         if (!token) {
             router.push("https://localhost:5001/");
         }
@@ -30,8 +31,12 @@ export default function Page() {
         setIsMenuOpen(!isMenuOpen);
     };
 
+    const toggleEditModal = () => {
+        setIsEditModalOpen(!isEditModalOpen);
+    };
+
     const handleLogout = () => {
-        localStorage.removeItem("authToken"); // Token aus localStorage entfernen
+        localStorage.removeItem("authToken");
         window.location.href = "https://localhost:5001/";
     };
 
@@ -48,42 +53,87 @@ export default function Page() {
         setDescription("");
     };
 
-    // Handler für den Kalender-Klick
     const handleCalendarChange = (selectedDate) => {
         setSelectedDate(selectedDate);
-        // Setzt das Datum im Eingabefeld im YYYY-MM-DD-Format (UTC)
         const formattedDate = formatDateToLocal(selectedDate);
         setDate(formattedDate);
     };
 
-    // Hilfsfunktion, um das Datum in YYYY-MM-DD zu formatieren
     const formatDateToLocal = (date) => {
         const newDate = new Date(date);
-        newDate.setMinutes(newDate.getMinutes() - newDate.getTimezoneOffset()); // Offset entfernen
-        return newDate.toISOString().split("T")[0]; // Nur das Datum im Format YYYY-MM-DD
+        newDate.setMinutes(newDate.getMinutes() - newDate.getTimezoneOffset());
+        return newDate.toISOString().split("T")[0];
+    };
+
+    const saveProfileChanges = () => {
+        console.log("Profile updated:", { username, email });
+        setIsEditModalOpen(false);
     };
 
     return (
         <div>
-            {/* Profil Button */}
-            <div className="profile-container">
-                <button className="profile-button" onClick={toggleMenu}>
-                    <img
-                        src="/profile-icon.png"
-                        alt="Profile Icon"
-                        className="profile-icon"
-                    />
+            {/* Top bar with profile button and username */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px" }}>
+                <div className="InputFontSideBySide" style={{ fontSize: "18px", fontWeight: "bold" }}>Welcome, {username}</div>
+                <button className="ProfileDesign" onClick={toggleMenu}>
+                    <img src="/icons/profileicon.png" alt="Profile Icon" />
                 </button>
-                {isMenuOpen && (
-                    <div className="side-menu">
-                        <button onClick={handleLogout}>Logout</button>
-                    </div>
-                )}
             </div>
+
+            {/* Profile menu */}
+            {isMenuOpen && (
+                <div className="profileMenu">
+                    <button className="ButtonDesign" onClick={toggleEditModal}>
+                        Edit
+                    </button>
+                    <button className="ButtonDesign" onClick={handleLogout}>
+                        Logout
+                    </button>
+                </div>
+            )}
+
+            {/* Modal for profile editing */}
+            {isEditModalOpen && (
+                <div className="modalOverlay">
+                    <div className="modalContent">
+                        <div className="modalHeader">
+                            <img
+                                src="/icons/profileicon.png"
+                                alt="Profile Icon"
+                                className="modalProfileImage"
+                            />
+                        </div>
+                        <label className="InputFontStacked">
+                            Username:
+                            <input
+                                type="text"
+                                value={username}
+                                onChange={(e) => setUsername(e.target.value)}
+                            />
+                        </label>
+                        <br />
+                        <label className="InputFontStacked">
+                            Email:
+                            <input
+                                type="email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                            />
+                        </label>
+                        <br />
+                        <button className="ButtonDesign" onClick={saveProfileChanges}>
+                            Save
+                        </button>
+                        <button className="ButtonDesign" onClick={toggleEditModal}>
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            )}
 
             <h1 className="TitleFont">Add Appointment</h1>
 
-            {/* Formular zur Eingabe neuer Termine */}
+            {/* Appointment form */}
             <label className="InputFontSideBySide">
                 Date:
                 <input
@@ -107,6 +157,7 @@ export default function Page() {
             <label className="InputFontSideBySide">
                 Description:
                 <textarea
+                    type="description"
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                 />
@@ -119,15 +170,10 @@ export default function Page() {
 
             {confirmation && <p className="InputFontSideBySide">{confirmation}</p>}
 
-            {/* Kalenderansicht */}
             <h2 className="TitleFont">Calendar</h2>
-            <Calendar
-                onChange={handleCalendarChange} // Kalender-Handler
-                value={selectedDate}
-            />
+            <Calendar onChange={handleCalendarChange} value={selectedDate} />
 
             <h3 className="TitleFont">Appointments for {selectedDate?.toLocaleDateString()}</h3>
-            {/* Termine */}
             {appointments
                 .filter(
                     (appt) =>

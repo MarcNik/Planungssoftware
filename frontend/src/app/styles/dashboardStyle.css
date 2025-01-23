@@ -1,7 +1,6 @@
 /* styling of whole body */
 body {
     background-color: rgb(26, 26, 26);
-    margin: 0;
     padding: 0;
     height: 100vh;
     color: white;
@@ -100,6 +99,8 @@ for error message */
     transition: background-color 0.1s ease, color 0.1s ease;
     margin-top: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    margin-left: 5px;
+    margin-right: 5px;
 }
 
 /* buttondesign when hovered over */
@@ -121,7 +122,9 @@ form {
 /* styling for input fields */
 input[type="date"],
 input[type="time"],
-textarea[type="description"]{
+textarea[type="description"],
+input[type="email"],
+input[type="text"]{
     width: 100%;
     padding: 5px;
     border: none;
@@ -138,7 +141,9 @@ textarea[type="description"]{
 /* styling for input fields in focus */
 input[type="date"]:focus,
 input[type="time"]:focus,
-textarea[type="description"]:focus {
+textarea[type="description"]:focus,
+input[type="email"]:focus,
+input[type="text"]:focus {
     outline: none;
     border-color: #ffffff;
     background-color: rgba(255, 255, 255, 0.2);
@@ -159,4 +164,71 @@ input[type="checkbox"] {
 input[type="checkbox"]:checked {
     background-color: #000000;
     border-color: #000000;
+}
+
+.ProfileDesign {
+    background: none;
+    border: 0px solid #ffffff;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    margin-top: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    display: inline-block;
+}
+
+.ProfileDesign img {
+    width: 30px;
+    height: auto;
+    border-radius: 5px;
+    transition: transform 0.1s ease;
+}
+
+.ProfileDesign:hover img {
+    transform: scale(1.1);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5);
+}
+
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.134);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+}
+
+.modalContent {
+    background: rgb(26, 26, 26);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    width: 300px;
+}
+
+.modalHeader {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.modalProfileImage {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.profileMenu {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
 }
