@@ -11,7 +11,6 @@ const {
   doesUsernameExist,
   doesEmailExist,
   addUser,
-  getPasswordHashFromDB,
 } = require("./database.js");
 
 const port = 5001;
@@ -21,7 +20,7 @@ const dev = process.env.NODE_ENV !== "production";
 const app = next({ dev, dir: path.join(__dirname, "../frontend") });
 const handle = app.getRequestHandler();
 
-// SSL-Optionen (stelle sicher, dass key.pem und cert.pem vorhanden sind)
+// SSL-Optionen
 const options = {
   key: fs.readFileSync("key.pem"),
   cert: fs.readFileSync("cert.pem"),
@@ -33,75 +32,90 @@ createTable();
 app.prepare().then(() => {
   const server = express();
 
-  // Middleware hinzufügen
   server.use(express.json());
   server.use("/public", express.static(path.join(__dirname, "frontend/public")));
 
   // JWT-Authentifizierungs-Middleware
   function authenticateToken(req, res, next) {
-    const token = req.headers.authorization?.split(" ")[1]; // Token aus dem Header
+    const token = req.headers.authorization?.split(" ")[1];
     if (!token) {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
     try {
-      jwt.verify(token, secretKey); // Überprüfung des Tokens
-      next(); // Wenn das Token gültig ist, fahre fort
+      jwt.verify(token, secretKey);
+      next();
     } catch (error) {
       return res.status(401).json({ message: "Invalid token" });
     }
   }
 
-  // Registrierung (Token wird hier nicht benötigt)
+  // Registrierung
   server.post("/api/register", async (req, res) => {
-    createTable();
-
     const { email, password, username, is2FAEnabled } = req.body;
 
     if (!email || !password || !username || is2FAEnabled === undefined) {
-      return res.status(400).json({ error: "Alle Felder müssen ausgefüllt werden." });
+        return res.status(400).json({ error: "Alle Felder müssen ausgefüllt werden." });
     }
-
-    console.log("Neuer Benutzer registriert:", { email, username, is2FAEnabled, password });
 
     try {
-      res.status(201).json({ message: "Benutzer erfolgreich registriert." });
+        // Überprüfen, ob der Benutzername oder die E-Mail bereits existiert
+        const usernameExists = await doesUsernameExist(username);
+        const emailExists = await doesEmailExist(email);
+
+        if (usernameExists) {
+            return res.status(400).json({ error: "Benutzername existiert bereits." });
+        }
+
+        if (emailExists) {
+            return res.status(400).json({ error: "E-Mail existiert bereits." });
+        }
+
+        // Passwort hashen
+        const hashedPassword = hashPassword(password);
+
+        // Benutzer zur Datenbank hinzufügen
+        await addUser(username, hashedPassword, email, is2FAEnabled);
+
+        return res.status(201).json({ message: "Benutzer erfolgreich registriert." });
     } catch (err) {
-      console.error("Fehler bei der Registrierung:", err.message);
-      res.status(500).json({ error: "Internal Server Error" });
+        console.error("Fehler bei der Registrierung:", err.message);
+        return res.status(500).json({ error: "Interner Serverfehler." });
     }
-  });
+});
 
-  // Login und Token-Generierung
+
+  // Login
   server.post("/api/login", async (req, res) => {
-    createTable();
-
     const { username, password } = req.body;
 
     if (!username || !password) {
       return res.status(400).json({ error: "Benutzername und Passwort sind erforderlich." });
     }
 
-    // Dummy-Logik für Benutzerüberprüfung (ersetze dies mit echter Datenbanklogik)
-    if (username === "admin" && password === "password123") {
-      const token = jwt.sign({ username }, secretKey, { expiresIn: "1h" }); // Token generieren
-      return res.status(200).json({ token });
-    }
+    try {
+      const hashedPassword = hashPassword(password);
+      const storedPassword = await getPasswordHashFromDB(username);
 
-    return res.status(401).json({ error: "Invalid credentials" });
+      if (hashedPassword !== storedPassword) {
+        return res.status(401).json({ error: "Ungültige Anmeldedaten." });
+      }
+
+      const token = jwt.sign({ username }, secretKey, { expiresIn: "1h" });
+      res.status(200).json({ token });
+    } catch (err) {
+      res.status(401).json({ error: "Ungültige Anmeldedaten." });
+    }
   });
 
-  // Geschützte Route (Token wird benötigt)
   server.get("/api/protected", authenticateToken, (req, res) => {
     res.status(200).json({ message: "This is a protected route. Access granted!" });
   });
 
-  // Alle anderen Routen an Next.js übergeben
   server.all("*", (req, res) => {
     return handle(req, res);
   });
 
-  // HTTPS-Server starten
   https.createServer(options, server).listen(port, (err) => {
     if (err) throw err;
     console.log("> HTTPS Server running on https://localhost:" + port);
