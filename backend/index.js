@@ -65,10 +65,32 @@ app.prepare().then(() => {
     console.log("Neuer Benutzer registriert:", { email, username, is2FAEnabled, password });
 
     try {
-      res.status(201).json({ message: "Benutzer erfolgreich registriert." });
+      // Prüft, ob der Benutzername schon vergeben ist
+      const isUsernameTaken = await doesUsernameExist(username);
+      if (isUsernameTaken) {
+          console.log("Nutzername ist schon vergeben");
+          return res.status(400).json({ error: 'Username already taken' });
+      } else {
+          console.log("Nutzername ist noch nicht vergeben");
+      }
+
+      // Prüft, ob die E-Mail schon vergeben ist
+      const isEmailTaken = await doesEmailExist(email);
+      if (isEmailTaken) {
+          console.log("E-Mail-Adresse ist schon vergeben");
+          return res.status(400).json({ error: 'Email is already in use' });
+      } else {
+          console.log("E-Mail-Adresse ist noch nicht vergeben");
+      }
+
+      // Benutzer erfolgreich registrieren
+      await addUser(username, hashPassword(password), email, is2FAEnabled);
+
+      const token = jwt.sign({ username }, secretKey, { expiresIn: "1h" }); // Token generieren
+      return res.status(201).json({ token });
     } catch (err) {
-      console.error("Fehler bei der Registrierung:", err.message);
-      res.status(500).json({ error: "Internal Server Error" });
+        console.error('Fehler bei der Registrierung:', err.message);
+        res.status(500).json({ error: 'Internal Server Error' });
     }
   });
 
@@ -82,10 +104,37 @@ app.prepare().then(() => {
       return res.status(400).json({ error: "Benutzername und Passwort sind erforderlich." });
     }
 
-    // Dummy-Logik für Benutzerüberprüfung (ersetze dies mit echter Datenbanklogik)
-    if (username === "admin" && password === "password123") {
+    try {
+      // Prüft, ob der Benutzername schon vergeben ist
+      const isUsernameTaken = await doesUsernameExist(username);
+      if (!isUsernameTaken) {
+          console.log("Benutzername existiert nicht");
+          return res.status(400).json({ error: 'Username or Password is wrong' });
+      } else {
+          console.log("Nutzername gefunden");
+      }
+
+      // Ruft den gespeicherten Passwort-Hash des Benutzers aus der Datenbank ab
+      const storedPasswordHash = await getPasswordHashFromDB(username); // Beispiel, anpassen je nach DB
+
+      const hashedPassword = hashPassword(password);
+
+      // Überprüft, ob das eingegebene Passwort mit dem gespeicherten Passwort-Hash übereinstimmt
+      const isPasswordCorrect = storedPasswordHash === hashedPassword;
+
+      if (!isPasswordCorrect) {
+        console.log("Passwort ist nicht korrekt");
+        return res.status(400).json({ error: 'Username or Password is wrong' });
+      } else {
+        console.log("Passwort ist korrekt");
+      }
+
+      // Benutzer erfolgreich eingeloggt
       const token = jwt.sign({ username }, secretKey, { expiresIn: "1h" }); // Token generieren
       return res.status(200).json({ token });
+    } catch (err) {
+        console.error('Fehler bei dem Login:', err.message);
+        res.status(500).json({ error: 'Internal Server Error' });
     }
 
     return res.status(401).json({ error: "Invalid credentials" });
