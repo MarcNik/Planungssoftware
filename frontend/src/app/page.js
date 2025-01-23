@@ -4,13 +4,13 @@ import { useState } from "react";
 import './styles/loginStyle.css';
 
 export default function Page() {
-    const [username, setUsername] = useState(""); // State für den Benutzernamen
-    const [password, setPassword] = useState(""); // State für das Passwort
-    const [email, setEmail] = useState(""); // State für die E-Mail-Adresse (nur für Registrierung)
-    const [error, setError] = useState(""); // State für Fehlermeldungen
-    const [success, setSuccess] = useState(""); // State für Erfolgsnachrichten
-    const [isRegistering, setIsRegistering] = useState(false); // State, um zwischen Login und Registrierung zu wechseln
-    const [is2FAEnabled, setIs2FAEnabled] = useState(false); // State für den 2FA-Schalter
+    const [username, setUsername] = useState("");
+    const [password, setPassword] = useState("");
+    const [email, setEmail] = useState("");
+    const [error, setError] = useState("");
+    const [success, setSuccess] = useState("");
+    const [isRegistering, setIsRegistering] = useState(false);
+    const [is2FAEnabled, setIs2FAEnabled] = useState(false);
 
     async function sha256(ascii) {
         const msgBuffer = new TextEncoder().encode(ascii);
@@ -23,8 +23,39 @@ export default function Page() {
         return await sha256(password);
     }
 
+    function validatePassword(password) {
+        const minLength = 10;
+        const hasUpperCase = /[A-Z]/.test(password);
+        const hasLowerCase = /[a-z]/.test(password);
+        const hasNumber = /[0-9]/.test(password);
+        const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+
+        if (password.length < minLength) {
+            return "Password must be at least 10 characters long.";
+        }
+        if (!hasUpperCase) {
+            return "Password must contain at least one uppercase letter.";
+        }
+        if (!hasLowerCase) {
+            return "Password must contain at least one lowercase letter.";
+        }
+        if (!hasNumber) {
+            return "Password must contain at least one number.";
+        }
+        if (!hasSpecialChar) {
+            return "Password must contain at least one special character.";
+        }
+        return ""; // Keine Fehler
+    }
+
     const handleLogin = async (e) => {
         e.preventDefault();
+        const passwordError = validatePassword(password);
+        if (passwordError) {
+            setError(passwordError);
+            return;
+        }
+
         if (!username || !password) {
             setError("Please enter both username and password.");
             return;
@@ -50,11 +81,11 @@ export default function Page() {
             }
 
             const result = await response.json();
-            localStorage.setItem("authToken", result.token); // Speichere Token im localStorage
+            localStorage.setItem("authToken", result.token);
             setSuccess("Login successful! Redirecting...");
 
             setTimeout(() => {
-                window.location.href = "/dashboard"; // Redirect nach erfolgreichem Login
+                window.location.href = "/dashboard";
             }, 2000);
         } catch (error) {
             console.error('Error during login:', error);
@@ -64,6 +95,12 @@ export default function Page() {
 
     const handleRegister = async (e) => {
         e.preventDefault();
+        const passwordError = validatePassword(password);
+        if (passwordError) {
+            setError(passwordError);
+            return;
+        }
+
         if (!username || !password || !email) {
             setError("Please fill in all fields.");
             return;
@@ -89,11 +126,11 @@ export default function Page() {
             }
 
             const result = await response.json();
-            localStorage.setItem("authToken", result.token); // Speichere Token im localStorage
+            localStorage.setItem("authToken", result.token);
             setSuccess("Registration successful! Redirecting...");
 
             setTimeout(() => {
-                window.location.href = "/dashboard"; // Redirect nach erfolgreicher Registrierung
+                window.location.href = "/dashboard";
             }, 2000);
         } catch (error) {
             console.error('Error during registration:', error);
@@ -105,7 +142,6 @@ export default function Page() {
         <div className="BackgroundLogin">
             <h1 className="TitleFont">{isRegistering ? "Register" : "Login"}</h1>
             <form onSubmit={isRegistering ? handleRegister : handleLogin}>
-                {/* Benutzernamen-Eingabe */}
                 <label className="InputFontStacked">
                     Username:
                     <input
@@ -116,7 +152,6 @@ export default function Page() {
                 </label>
                 <br />
 
-                {/* Passwort-Eingabe */}
                 <label className="InputFontStacked">
                     Password:
                     <input
@@ -127,7 +162,6 @@ export default function Page() {
                 </label>
                 <br />
 
-                {/* E-Mail-Adresse (nur bei Registrierung) */}
                 {isRegistering && (
                     <>
                         <label className="InputFontStacked">
@@ -139,12 +173,7 @@ export default function Page() {
                             />
                         </label>
                         <br />
-                    </>
-                )}
 
-                {/* 2FA-Schalter (nur bei Registrierung) */}
-                {isRegistering && (
-                    <>
                         <label className="InputFontSideBySide">
                             Enable Two-Factor Authentication
                             <input
@@ -157,17 +186,12 @@ export default function Page() {
                     </>
                 )}
 
-                {/* Fehlermeldung */}
                 {error && <p style={{ color: "red" }} className="ErrorFont">{error}</p>}
-
-                {/* Erfolgsnachricht */}
                 {success && <p style={{ color: "green" }} className="SuccessFont">{success}</p>}
 
-                {/* Absenden-Button */}
                 <button className="ButtonDesign" type="submit">{isRegistering ? "Register" : "Login"}</button>
             </form>
 
-            {/* Umschalten zwischen Login und Registrierung */}
             <p>
                 {isRegistering ? (
                     <span className="InputFontStacked">

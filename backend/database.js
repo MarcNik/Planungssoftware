@@ -74,19 +74,16 @@ async function addUser(username, password, email, is2FAEnabled) {
         VALUES (?, ?, ?, ?)
     `;
 
-    try {
-        await new Promise((resolve, reject) => {
-            db.run(insertSQL, [username, password, email, is2FAEnabled], function(err) {
-                if (err) reject(err);
-                else resolve(`User added with ID: ${this.lastID}`);
-            });
+    return new Promise((resolve, reject) => {
+        db.run(insertSQL, [username, password, email, is2FAEnabled], function (err) {
+            if (err) {
+                console.error("Fehler beim Hinzufügen des Benutzers:", err.message);
+                return reject(err);
+            }
+            console.log("Benutzer hinzugefügt mit ID:", this.lastID);
+            resolve(this.lastID);
         });
-
-        return `User added successfully with ID: ${this.lastID}`;
-    } catch (err) {
-        console.error('Error adding user:', err.message);
-        throw new Error(err.message);
-    }
+    });
 }
 
 // Passwort zurückgeben
@@ -100,12 +97,11 @@ async function getPasswordHashFromDB(username) {
             });
         });
 
-        // Falls kein Benutzer mit dem Benutzernamen gefunden wurde
         if (!row) {
             throw new Error('User not found');
         }
 
-        return row.password; // Rückgabe des Passwort-Hashes
+        return row.password; 
     } catch (err) {
         console.error('Fehler beim Abrufen des Passwort-Hashes:', err.message);
         throw err;
@@ -130,4 +126,4 @@ module.exports = {
     doesEmailExist,
     addUser,
     getPasswordHashFromDB,
-}
+};

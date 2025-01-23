@@ -1,0 +1,85 @@
+  server.post('/api/register', async (req, res) => {
+    createTable();
+
+    const { email, password, username, is2FAEnabled } = req.body;
+
+    if (!email || !password || !username || is2FAEnabled === undefined) {
+      return res.status(400).json({ error: 'Alle Felder müssen ausgefüllt werden.' });
+    }
+
+    // Beispiel: Datenbankeintrag simulieren
+    console.log('Neuer Benutzer registriert:', { email, username, is2FAEnabled, password });
+
+    try {
+      // Prüft, ob der Benutzername schon vergeben ist
+      const isUsernameTaken = await doesUsernameExist(username);
+      if (isUsernameTaken) {
+          console.log("Nutzername ist schon vergeben");
+          return res.status(400).json({ error: 'Username already taken' });
+      } else {
+          console.log("Nutzername ist noch nicht vergeben");
+      }
+
+      // Prüft, ob die E-Mail schon vergeben ist
+      const isEmailTaken = await doesEmailExist(email);
+      if (isEmailTaken) {
+          console.log("E-Mail-Adresse ist schon vergeben");
+          return res.status(400).json({ error: 'Email is already in use' });
+      } else {
+          console.log("E-Mail-Adresse ist noch nicht vergeben");
+      }
+
+      // Benutzer erfolgreich registrieren
+      await addUser(username, hashPassword(password), email, is2FAEnabled);
+
+      res.status(201).json({ message: 'Benutzer erfolgreich registriert.' });
+    } catch (err) {
+        console.error('Fehler bei der Registrierung:', err.message);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+  });
+
+  server.post('/api/login', async (req, res) => {
+    createTable();
+
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+      //return res.status(400).json({ error: 'Benutzername und Passwort sind erforderlich.' });
+    }
+
+    // Beispiel: Benutzerüberprüfung simulieren
+    console.log('Benutzer eingeloggt:', { username, password });
+
+    try {
+      // Prüft, ob der Benutzername schon vergeben ist
+      const isUsernameTaken = await doesUsernameExist(username);
+      if (!isUsernameTaken) {
+          console.log("Benutzername existiert nicht");
+          return res.status(400).json({ error: 'Username or Password is wrong' });
+      } else {
+          console.log("Nutzername gefunden");
+      }
+
+      // Ruft den gespeicherten Passwort-Hash des Benutzers aus der Datenbank ab
+      const storedPasswordHash = await getPasswordHashFromDB(username); // Beispiel, anpassen je nach DB
+
+      const hashedPassword = hashPassword(password);
+
+      // Überprüft, ob das eingegebene Passwort mit dem gespeicherten Passwort-Hash übereinstimmt
+      const isPasswordCorrect = storedPasswordHash === hashedPassword;
+
+      if (!isPasswordCorrect) {
+        console.log("Passwort ist nicht korrekt");
+        return res.status(400).json({ error: 'Username or Password is wrong' });
+      } else {
+        console.log("Passwort ist korrekt");
+      }
+
+      // Benutzer erfolgreich eingeloggt
+      res.status(200).json({ message: 'Login erfolgreich.' });
+    } catch (err) {
+        console.error('Fehler bei dem Login:', err.message);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+  });
