@@ -4,6 +4,7 @@ const path = require("path");
 const https = require("https");
 const fs = require("fs");
 const jwt = require("jsonwebtoken");
+const nodemailer = require("nodemailer");
 
 const {
   createTable,
@@ -12,7 +13,15 @@ const {
   doesEmailExist,
   addUser,
   getPasswordHashFromDB,
+  get2FAStatus,
+  getEmail,
 } = require("./database.js");
+
+const {
+  create2FACode,
+} = require("./2FA.js");
+
+const { compare } = require("bcrypt");
 
 const port = 5001;
 const secretKey = "your-secret-key"; // Geheimer Schlüssel für JWT
@@ -27,11 +36,21 @@ const options = {
   cert: fs.readFileSync("cert.pem"),
 };
 
+let twoFACodes = {}; // Speichert temporäre 2FA-Codes
+
 // Datenbank-Tabelle erstellen
 createTable();
 
 app.prepare().then(() => {
   const server = express();
+
+  const transporter = nodemailer.createTransport({
+    service: 'abc', // E-Mail-Provider
+    auth: {
+      user: 'abc', // E-Mail-Adresse
+      pass: 'abc', // App-Passwort bei 2FA
+    },
+  });
 
   // Middleware hinzufügen
   server.use(express.json());
@@ -50,6 +69,24 @@ app.prepare().then(() => {
     } catch (error) {
       return res.status(401).json({ message: "Invalid token" });
     }
+  }
+
+  function send2FACode(email, code) {
+    const mailOptions = {
+        from: 'abc', // E-Mail-Adresse des Absenders
+        to: email, // Empfänger
+        subject: 'Dein 2FA-Code', // Betreff der E-Mail
+        text: `Hallo,\n\nDein 2FA-Code lautet: ${code}\n\nDieser Code ist für deine Sicherheit, bitte teile ihn niemandem mit.` // Nachricht
+    };
+
+    // Versenden der E-Mail
+    transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+            console.log('Fehler beim Senden der E-Mail:', error);
+        } else {
+            console.log('E-Mail gesendet:', info.response);
+        }
+    });
   }
 
   // Registrierung (Token wird hier nicht benötigt)
@@ -121,6 +158,18 @@ app.prepare().then(() => {
         console.log("Passwort ist korrekt");
       }
 
+      const is2FAEnabled = await get2FAStatus(username);
+      if (is2FAEnabled === 1) {
+        const tempToken = jwt.sign({ username }, secretKey, { expiresIn: "5m" });
+        twoFACodes[tempToken] = create2FACode(); // 2FA-Code generieren und temporär speichern
+
+        console.log(twoFACodes[tempToken]); // 2FA-Code in der Konsole ausgeben (ENTFERNEN NACH DEM TESTEN)
+
+        //send2FACode(getEmail(username), twoFACodes[tempToken]); // 2FA-Code per E-Mail senden
+
+        return res.status(200).json({ is2FAEnabled: true, tempToken });
+      }
+
       // Benutzer erfolgreich eingeloggt
       const token = jwt.sign({ username }, secretKey, { expiresIn: "1h" }); // Token generieren
       return res.status(200).json({ token });
@@ -130,6 +179,22 @@ app.prepare().then(() => {
     }
 
     return res.status(401).json({ error: "Invalid credentials" });
+  });
+
+  // 2FA-Verifizierung
+  server.post("/api/verify-2fa", (req, res) => {
+    const { tempToken, twoFACode } = req.body;
+    if (twoFACode !== twoFACodes[tempToken]) {  // Platzhalter "123" für den echten 2FA-Code
+        return res.status(400).json({ error: "Invalid 2FA Code" });
+    }
+
+    try {
+        const decoded = jwt.verify(tempToken, secretKey);
+        const token = jwt.sign({ username: decoded.username }, secretKey, { expiresIn: "1h" });
+        return res.status(200).json({ token });
+    } catch (err) {
+        return res.status(401).json({ error: "Invalid or expired token" });
+    }
   });
 
   // Geschützte Route (Token wird benötigt)

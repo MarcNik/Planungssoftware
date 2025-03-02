@@ -108,6 +108,48 @@ async function getPasswordHashFromDB(username) {
     }
 }
 
+async function get2FAStatus(username) {
+    const query = `SELECT Is2FAEnabled FROM Users WHERE username = ?`;
+    try {
+        const row = await new Promise((resolve, reject) => {
+            db.get(query, [username], (err, row) => {
+                if (err) reject(err);
+                else resolve(row);
+            });
+        });
+
+        if (!row) {
+            throw new Error('User not found');
+        }
+
+        return row.Is2FAEnabled; 
+    } catch (err) {
+        console.error('Fehler beim Abrufen des 2FA-Status:', err.message);
+        throw err;
+    }
+}
+
+async function getEmail(username) {
+    const query = `SELECT email FROM Users WHERE username = ?`;
+    try {
+        const row = await new Promise((resolve, reject) => {
+            db.get(query, [username], (err, row) => {
+                if (err) reject(err);
+                else resolve(row);
+            });
+        });
+
+        if (!row) {
+            throw new Error('User not found');
+        }
+
+        return row.email; 
+    } catch (err) {
+        console.error('Fehler beim Abrufen der E-Mail:', err.message);
+        throw err;
+    }
+}
+
 // Datenbankverbindung schließen
 process.on('SIGINT', () => {
     db.close((err) => {
@@ -126,4 +168,6 @@ module.exports = {
     doesEmailExist,
     addUser,
     getPasswordHashFromDB,
+    get2FAStatus,
+    getEmail,
 };

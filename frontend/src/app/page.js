@@ -11,6 +11,8 @@ export default function Page() {
     const [success, setSuccess] = useState("");
     const [isRegistering, setIsRegistering] = useState(false);
     const [is2FAEnabled, setIs2FAEnabled] = useState(false);
+    let [tempToken, setTempToken] = useState("");
+    let [twoFACode, set2FACode] = useState("");
 
     async function sha256(ascii) {
         const msgBuffer = new TextEncoder().encode(ascii);
@@ -81,12 +83,18 @@ export default function Page() {
             }
 
             const result = await response.json();
-            localStorage.setItem("authToken", result.token);
-            setSuccess("Login successful! Redirecting...");
 
-            setTimeout(() => {
-                window.location.href = "/dashboard";
-            }, 2000);
+            if(result.is2FAEnabled) {
+                setIs2FAPending(true);
+                setTempToken(result.tempToken);
+            } else {
+                localStorage.setItem("authToken", result.token);
+                setSuccess("Login successful! Redirecting...");
+
+                setTimeout(() => {
+                    window.location.href = "/dashboard";
+                }, 2000);
+            }
         } catch (error) {
             console.error('Error during login:', error);
             setError('An error occurred during login.');
@@ -138,73 +146,125 @@ export default function Page() {
         }
     };
 
-    return (
-        <div className="BackgroundLogin">
-            <h1 className="TitleFont">{isRegistering ? "Register" : "Login"}</h1>
-            <form onSubmit={isRegistering ? handleRegister : handleLogin}>
-                <label className="InputFontStacked">
-                    Username:
-                    <input
-                        type="text"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                    />
-                </label>
-                <br />
+    const handle2FAVerify = async (e) => {
+        e.preventDefault();
+        try {
+            const response = await fetch("/api/verify-2fa", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ tempToken, twoFACode })
+            });
+            const data = await response.json();
+    
+            if (data.token) {
+                localStorage.setItem("authToken", data.token);
+                setSuccess("Login successful! Redirecting...");
+                setError("");
+    
+                setTimeout(() => {
+                    window.location.href = "/dashboard";
+                }, 2000);
+            } else {
+                setError(data.error);
+            }
+        } catch (err) {
+            setError("2FA verification failed");
+        }
+    };
 
-                <label className="InputFontStacked">
-                    Password:
-                    <input
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                    />
-                </label>
-                <br />
+    let [is2FAPending, setIs2FAPending] = useState(false);
 
-                {isRegistering && (
-                    <>
-                        <label className="InputFontStacked">
-                            Email:
-                            <input
-                                type="email"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                            />
-                        </label>
-                        <br />
-
-                        <label className="InputFontSideBySide">
-                            Enable Two-Factor Authentication
-                            <input
-                                type="checkbox"
-                                checked={is2FAEnabled}
-                                onChange={() => setIs2FAEnabled(!is2FAEnabled)}
-                            />
-                        </label>
-                        <br />
-                    </>
-                )}
+    if(!is2FAPending) {
+        return (
+            <div className="BackgroundLogin">
+                <h1 className="TitleFont">{isRegistering ? "Register" : "Login"}</h1>
+                <form onSubmit={isRegistering ? handleRegister : handleLogin}>
+                    <label className="InputFontStacked">
+                        Username:
+                        <input
+                            type="text"
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
+                        />
+                    </label>
+                    <br />
+    
+                    <label className="InputFontStacked">
+                        Password:
+                        <input
+                            type="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                        />
+                    </label>
+                    <br />
+    
+                    {isRegistering && (
+                        <>
+                            <label className="InputFontStacked">
+                                Email:
+                                <input
+                                    type="email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                />
+                            </label>
+                            <br />
+    
+                            <label className="InputFontSideBySide">
+                                Enable Two-Factor Authentication
+                                <input
+                                    type="checkbox"
+                                    checked={is2FAEnabled}
+                                    onChange={() => setIs2FAEnabled(!is2FAEnabled)}
+                                />
+                            </label>
+                            <br />
+                        </>
+                    )}
+    
+                    {error && <p style={{ color: "red" }} className="ErrorFont">{error}</p>}
+                    {success && <p style={{ color: "green" }} className="SuccessFont">{success}</p>}
+    
+                    <button className="ButtonDesign" type="submit">{isRegistering ? "Register" : "Login"}</button>
+                </form>
+    
+                <p>
+                    {isRegistering ? (
+                        <span className="InputFontStacked">
+                            Already have an account?{" "}
+                            <button className="ButtonDesign" onClick={() => setIsRegistering(false)}>Login</button>
+                        </span>
+                    ) : (
+                        <span className="InputFontStacked">
+                            Don't have an account?{" "}
+                            <button className="ButtonDesign" onClick={() => setIsRegistering(true)}>Register</button>
+                        </span>
+                    )}
+                </p>
+            </div>
+        );
+    } else {
+        return (
+            <div>
+                <form onSubmit={handle2FAVerify}>
+                    <p>A code has been sent to you via email</p>
+                    <label className="InputFontStacked">
+                        Code:
+                        <input
+                            type="text"
+                            value={twoFACode}
+                            onChange={(e) => set2FACode(e.target.value)}
+                        />
+                    </label>
+                    <button type="submit">Verify</button>
+                </form>
 
                 {error && <p style={{ color: "red" }} className="ErrorFont">{error}</p>}
                 {success && <p style={{ color: "green" }} className="SuccessFont">{success}</p>}
 
-                <button className="ButtonDesign" type="submit">{isRegistering ? "Register" : "Login"}</button>
-            </form>
-
-            <p>
-                {isRegistering ? (
-                    <span className="InputFontStacked">
-                        Already have an account?{" "}
-                        <button className="ButtonDesign" onClick={() => setIsRegistering(false)}>Login</button>
-                    </span>
-                ) : (
-                    <span className="InputFontStacked">
-                        Don't have an account?{" "}
-                        <button className="ButtonDesign" onClick={() => setIsRegistering(true)}>Register</button>
-                    </span>
-                )}
-            </p>
-        </div>
-    );
+                <h1></h1>
+            </div>
+        );
+    }
 }
