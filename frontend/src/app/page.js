@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import './styles/loginStyle.css';
+import { useRouter } from "next/navigation";
+import "./styles/loginStyle.css";
 
 export default function Page() {
+    const router = useRouter();
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [email, setEmail] = useState("");
@@ -11,14 +13,16 @@ export default function Page() {
     const [success, setSuccess] = useState("");
     const [isRegistering, setIsRegistering] = useState(false);
     const [is2FAEnabled, setIs2FAEnabled] = useState(false);
-    let [tempToken, setTempToken] = useState("");
-    let [twoFACode, set2FACode] = useState("");
+    const [is2FAPending, setIs2FAPending] = useState(false);
+    const [tempToken, setTempToken] = useState("");
+    const [twoFACode, set2FACode] = useState("");
 
+    // Passwort-Hashing mit SHA-256
     async function sha256(ascii) {
         const msgBuffer = new TextEncoder().encode(ascii);
-        const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+        const hashBuffer = await crypto.subtle.digest("SHA-256", msgBuffer);
         const hashArray = Array.from(new Uint8Array(hashBuffer));
-        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
     }
 
     async function hashPassword(password) {
@@ -32,31 +36,19 @@ export default function Page() {
         const hasNumber = /[0-9]/.test(password);
         const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
 
-        if (password.length < minLength) {
-            return "Password must be at least 10 characters long.";
-        }
-        if (!hasUpperCase) {
-            return "Password must contain at least one uppercase letter.";
-        }
-        if (!hasLowerCase) {
-            return "Password must contain at least one lowercase letter.";
-        }
-        if (!hasNumber) {
-            return "Password must contain at least one number.";
-        }
-        if (!hasSpecialChar) {
-            return "Password must contain at least one special character.";
-        }
-        return ""; // Keine Fehler
+        if (password.length < minLength) return "Password must be at least 10 characters long.";
+        if (!hasUpperCase) return "Password must contain at least one uppercase letter.";
+        if (!hasLowerCase) return "Password must contain at least one lowercase letter.";
+        if (!hasNumber) return "Password must contain at least one number.";
+        if (!hasSpecialChar) return "Password must contain at least one special character.";
+        
+        return "";
     }
 
     const handleLogin = async (e) => {
         e.preventDefault();
-        const passwordError = validatePassword(password);
-        if (passwordError) {
-            setError(passwordError);
-            return;
-        }
+        setError("");
+        setSuccess("");
 
         if (!username || !password) {
             setError("Please enter both username and password.");
@@ -64,45 +56,39 @@ export default function Page() {
         }
 
         const hashedPassword = await hashPassword(password);
-        setError("");
-        setSuccess("");
 
         try {
-            const response = await fetch('/api/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+            const response = await fetch("/api/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ username, password: hashedPassword }),
             });
 
+            const result = await response.json();
+
             if (!response.ok) {
-                const errorData = await response.json();
-                setError(errorData.error || 'Login failed.');
+                setError(result.error || "Login failed.");
                 return;
             }
 
-            const result = await response.json();
-
-            if(result.is2FAEnabled) {
+            if (result.is2FAEnabled) {
                 setIs2FAPending(true);
                 setTempToken(result.tempToken);
             } else {
                 localStorage.setItem("authToken", result.token);
                 setSuccess("Login successful! Redirecting...");
-
-                setTimeout(() => {
-                    window.location.href = "/dashboard";
-                }, 2000);
+                setTimeout(() => router.push("/dashboard"), 2000);
             }
         } catch (error) {
-            console.error('Error during login:', error);
-            setError('An error occurred during login.');
+            setError("An error occurred during login.");
         }
     };
 
     const handleRegister = async (e) => {
         e.preventDefault();
+        setError("");
+        setSuccess("");
+
         const passwordError = validatePassword(password);
         if (passwordError) {
             setError(passwordError);
@@ -115,156 +101,123 @@ export default function Page() {
         }
 
         const hashedPassword = await hashPassword(password);
-        setError("");
-        setSuccess("");
 
         try {
-            const response = await fetch('/api/register', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+            const response = await fetch("/api/register", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ username, password: hashedPassword, email, is2FAEnabled }),
             });
 
+            const result = await response.json();
+
             if (!response.ok) {
-                const errorData = await response.json();
-                setError(errorData.error || 'Registration failed.');
+                setError(result.error || "Registration failed.");
                 return;
             }
 
-            const result = await response.json();
             localStorage.setItem("authToken", result.token);
             setSuccess("Registration successful! Redirecting...");
-
-            setTimeout(() => {
-                window.location.href = "/dashboard";
-            }, 2000);
+            setTimeout(() => router.push("/dashboard"), 2000);
         } catch (error) {
-            console.error('Error during registration:', error);
-            setError('An error occurred during registration.');
+            setError("An error occurred during registration.");
         }
     };
 
     const handle2FAVerify = async (e) => {
         e.preventDefault();
+        setError("");
+        setSuccess("");
+
         try {
             const response = await fetch("/api/verify-2fa", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ tempToken, twoFACode })
+                body: JSON.stringify({ tempToken, twoFACode }),
             });
-            const data = await response.json();
-    
-            if (data.token) {
-                localStorage.setItem("authToken", data.token);
+
+            const result = await response.json();
+
+            if (result.token) {
+                localStorage.setItem("authToken", result.token);
                 setSuccess("Login successful! Redirecting...");
-                setError("");
-    
-                setTimeout(() => {
-                    window.location.href = "/dashboard";
-                }, 2000);
+                setTimeout(() => router.push("/dashboard"), 2000);
             } else {
-                setError(data.error);
+                setError(result.error || "2FA verification failed.");
             }
         } catch (err) {
-            setError("2FA verification failed");
+            setError("2FA verification failed.");
         }
     };
 
-    let [is2FAPending, setIs2FAPending] = useState(false);
+    return (
+        <div className="BackgroundLogin">
+            {!is2FAPending ? (
+                <>
+                    <h1 className="TitleFont">{isRegistering ? "Register" : "Login"}</h1>
+                    <form onSubmit={isRegistering ? handleRegister : handleLogin}>
+                        <label className="InputFontStacked">
+                            Username:
+                            <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} />
+                        </label>
+                        <br />
 
-    if(!is2FAPending) {
-        return (
-            <div className="BackgroundLogin">
-                <h1 className="TitleFont">{isRegistering ? "Register" : "Login"}</h1>
-                <form onSubmit={isRegistering ? handleRegister : handleLogin}>
-                    <label className="InputFontStacked">
-                        Username:
-                        <input
-                            type="text"
-                            value={username}
-                            onChange={(e) => setUsername(e.target.value)}
-                        />
-                    </label>
-                    <br />
-    
-                    <label className="InputFontStacked">
-                        Password:
-                        <input
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                        />
-                    </label>
-                    <br />
-    
-                    {isRegistering && (
-                        <>
-                            <label className="InputFontStacked">
-                                Email:
-                                <input
-                                    type="email"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                />
-                            </label>
-                            <br />
-    
-                            <label className="InputFontSideBySide">
-                                Enable Two-Factor Authentication
-                                <input
-                                    type="checkbox"
-                                    checked={is2FAEnabled}
-                                    onChange={() => setIs2FAEnabled(!is2FAEnabled)}
-                                />
-                            </label>
-                            <br />
-                        </>
-                    )}
-    
-                    {error && <p style={{ color: "red" }} className="ErrorFont">{error}</p>}
-                    {success && <p style={{ color: "green" }} className="SuccessFont">{success}</p>}
-    
-                    <button className="ButtonDesign" type="submit">{isRegistering ? "Register" : "Login"}</button>
-                </form>
-    
-                <p>
-                    {isRegistering ? (
-                        <span className="InputFontStacked">
-                            Already have an account?{" "}
-                            <button className="ButtonDesign" onClick={() => setIsRegistering(false)}>Login</button>
-                        </span>
-                    ) : (
-                        <span className="InputFontStacked">
-                            Don't have an account?{" "}
-                            <button className="ButtonDesign" onClick={() => setIsRegistering(true)}>Register</button>
-                        </span>
-                    )}
-                </p>
-            </div>
-        );
-    } else {
-        return (
-            <div>
-                <form onSubmit={handle2FAVerify}>
-                    <p>A code has been sent to you via email</p>
-                    <label className="InputFontStacked">
-                        Code:
-                        <input
-                            type="text"
-                            value={twoFACode}
-                            onChange={(e) => set2FACode(e.target.value)}
-                        />
-                    </label>
-                    <button type="submit">Verify</button>
-                </form>
+                        <label className="InputFontStacked">
+                            Password:
+                            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+                        </label>
+                        <br />
 
-                {error && <p style={{ color: "red" }} className="ErrorFont">{error}</p>}
-                {success && <p style={{ color: "green" }} className="SuccessFont">{success}</p>}
+                        {isRegistering && (
+                            <>
+                                <label className="InputFontStacked">
+                                    Email:
+                                    <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+                                </label>
+                                <br />
 
-                <h1></h1>
-            </div>
-        );
-    }
+                                <label className="InputFontSideBySide">
+                                    Enable Two-Factor Authentication
+                                    <input type="checkbox" checked={is2FAEnabled} onChange={() => setIs2FAEnabled(!is2FAEnabled)} />
+                                </label>
+                                <br />
+                            </>
+                        )}
+
+                        {error && <p className="ErrorFont" style={{ color: "red" }}>{error}</p>}
+                        {success && <p className="SuccessFont" style={{ color: "green" }}>{success}</p>}
+
+                        <button className="ButtonDesign" type="submit">{isRegistering ? "Register" : "Login"}</button>
+                    </form>
+
+                    <p>
+                        {isRegistering ? (
+                            <span className="InputFontStacked">
+                                Already have an account?{" "}
+                                <button className="ButtonDesign" onClick={() => setIsRegistering(false)}>Login</button>
+                            </span>
+                        ) : (
+                            <span className="InputFontStacked">
+                                Don't have an account?{" "}
+                                <button className="ButtonDesign" onClick={() => setIsRegistering(true)}>Register</button>
+                            </span>
+                        )}
+                    </p>
+                </>
+            ) : (
+                <div>
+                    <form onSubmit={handle2FAVerify}>
+                        <p>A code has been sent to you via email</p>
+                        <label className="InputFontStacked">
+                            Code:
+                            <input type="text" value={twoFACode} onChange={(e) => set2FACode(e.target.value)} />
+                        </label>
+                        <button type="submit">Verify</button>
+                    </form>
+                    {error && <p className="ErrorFont" style={{ color: "red" }}>{error}</p>}
+                    {success && <p className="SuccessFont" style={{ color: "green" }}>{success}</p>}
+                </div>
+            )}
+        </div>
+    );
 }
