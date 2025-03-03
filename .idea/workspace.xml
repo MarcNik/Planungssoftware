@@ -4,9 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="66b5b3e6-062a-4f60-9eb8-a8b9abe06214" name="Changes" comment="Set up project structure with Express backend and Next.js frontend. Created a basic API route (/api/message) in the backend and fetched data from it in the frontend. Basic communication between server and client established.">
+    <list default="true" id="66b5b3e6-062a-4f60-9eb8-a8b9abe06214" name="Changes" comment="feat: Add CSS file for dashboard and login window styling&#10;&#10;- Created base styles for the dashboard layout&#10;- Styled the login window with focus on responsiveness&#10;- Included Flexbox for alignment and spacing">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/backend/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/userDatabase.db" beforeDir="false" afterPath="$PROJECT_DIR$/backend/userDatabase.db" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/app/dashboard/page.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/dashboard/page.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/app/styles/dashboardStyle.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/styles/dashboardStyle.css" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -14,6 +17,11 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="main" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
@@ -25,7 +33,7 @@
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
     &quot;url&quot;: &quot;https://github.com/MarcNik/Planungssoftware.git&quot;,
-    &quot;accountId&quot;: &quot;ae91fa9f-24e3-4b3d-871a-c25f5aae7d76&quot;
+    &quot;accountId&quot;: &quot;04e99bb7-2855-478f-affa-bb89bc3ee44f&quot;
   }
 }</component>
   <component name="ProjectColorInfo">{
@@ -41,22 +49,36 @@
   </component>
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
+    &quot;Node.js.page.js.executor&quot;: &quot;Run&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;feature/add-calendar-integration&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/yan/Projekte/Planungssoftware&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;vcs.Git&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;ml.llm.LLMConfigurable&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;/home/yan/Downloads/WebStorm-243.23654.120/plugins/javascript-plugin/jsLanguageServicesImpl/external&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/frontend/src/app/styles" />
+      <recent name="$PROJECT_DIR$/frontend/src" />
+      <recent name="$PROJECT_DIR$/frontend/src/app" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/frontend/src/app/styles/icons" />
+      <recent name="$PROJECT_DIR$/frontend/src/app/dashboard" />
+    </key>
+  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-d6986cc7102b-e768b9ed790e-JavaScript-WS-243.21565.180" />
+        <option value="bundled-js-predefined-d6986cc7102b-822845ee3bb5-JavaScript-WS-243.23654.120" />
       </set>
     </attachedChunks>
   </component>
@@ -72,7 +94,12 @@
       <workItem from="1733393990809" duration="805000" />
       <workItem from="1736784539221" duration="737000" />
       <workItem from="1736785577520" duration="1704000" />
-      <workItem from="1736787285736" duration="115000" />
+      <workItem from="1736787285736" duration="1245000" />
+      <workItem from="1736861415726" duration="55000" />
+      <workItem from="1736861472478" duration="2234000" />
+      <workItem from="1736863750204" duration="2387000" />
+      <workItem from="1737557199842" duration="2925000" />
+      <workItem from="1737632251331" duration="7616000" />
     </task>
     <task id="LOCAL-00001" summary="Test">
       <option name="closed" value="true" />
@@ -130,7 +157,31 @@
       <option name="project" value="LOCAL" />
       <updated>1736786897410</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="Update README.md">
+      <option name="closed" value="true" />
+      <created>1736787705413</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1736787705413</updated>
+    </task>
+    <task id="LOCAL-00009" summary="Description:&#10;&#10;Integrated calendar date selection with the date input field.&#10;Updated the date input automatically when a day is selected on the calendar.&#10;Ensured seamless interaction between the calendar and the appointment form.&#10;Maintained existing functionality for saving and displaying appointments.">
+      <option name="closed" value="true" />
+      <created>1736863377395</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1736863377395</updated>
+    </task>
+    <task id="LOCAL-00010" summary="feat: Add CSS file for dashboard and login window styling&#10;&#10;- Created base styles for the dashboard layout&#10;- Styled the login window with focus on responsiveness&#10;- Included Flexbox for alignment and spacing">
+      <option name="closed" value="true" />
+      <created>1737551926024</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1737551926024</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -150,6 +201,9 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Test" />
     <MESSAGE value="Set up project structure with Express backend and Next.js frontend. Created a basic API route (/api/message) in the backend and fetched data from it in the frontend. Basic communication between server and client established." />
-    <option name="LAST_COMMIT_MESSAGE" value="Set up project structure with Express backend and Next.js frontend. Created a basic API route (/api/message) in the backend and fetched data from it in the frontend. Basic communication between server and client established." />
+    <MESSAGE value="Update README.md" />
+    <MESSAGE value="Description:&#10;&#10;Integrated calendar date selection with the date input field.&#10;Updated the date input automatically when a day is selected on the calendar.&#10;Ensured seamless interaction between the calendar and the appointment form.&#10;Maintained existing functionality for saving and displaying appointments." />
+    <MESSAGE value="feat: Add CSS file for dashboard and login window styling&#10;&#10;- Created base styles for the dashboard layout&#10;- Styled the login window with focus on responsiveness&#10;- Included Flexbox for alignment and spacing" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: Add CSS file for dashboard and login window styling&#10;&#10;- Created base styles for the dashboard layout&#10;- Styled the login window with focus on responsiveness&#10;- Included Flexbox for alignment and spacing" />
   </component>
 </project>
