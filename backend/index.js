@@ -119,7 +119,8 @@ app.prepare().then(() => {
         // Benutzer zur Datenbank hinzufügen
         await addUser(username, hashedPassword, email, is2FAEnabled);
 
-        return res.status(201).json({ message: "Benutzer erfolgreich registriert." });
+        const token = jwt.sign({ username }, secretKey, { expiresIn: "1h" }); // Token generieren
+        return res.status(200).json({ token });
     } catch (err) {
         console.error("Fehler bei der Registrierung:", err.message);
         return res.status(500).json({ error: "Interner Serverfehler." });
@@ -197,6 +198,45 @@ app.prepare().then(() => {
         return res.status(200).json({ token });
     } catch (err) {
         return res.status(401).json({ error: "Invalid or expired token" });
+    }
+  });
+
+  // Termin hinzufügen (Token wird benötigt)
+  server.post("/api/add-appointment", authenticateToken, async (req, res) => {
+    const { title, date, token } = req.body;
+
+    if (!title || !date || !token) {
+      return res.status(400).json({ error: "Title, date, and account ID are required." });
+    }
+
+    const decoded = jwt.verify(token, secretKey);
+    const username = decoded.username;
+
+    try {
+      await addAppointment(username, title, "Test", date);
+      return res.status(201).json({ message: "Appointment added successfully." });
+    } catch (err) {
+      console.error("Error adding appointment:", err.message);
+      return res.status(500).json({ error: "Internal Server Error." });
+    }
+  });
+
+  server.post("/api/get-appointment", authenticateToken, async (req, res) => {
+    const { token } = req.body;
+
+    if (!token) {
+      return res.status(400).json({ error: "Account ID is required." });
+    }
+
+    const decoded = jwt.verify(token, secretKey);
+    const username = decoded.username;
+
+    try {
+      const appointments = await getAppointmentsByAccountId(username);
+      return res.status(200).json({ appointments });
+    } catch (err) {
+      console.error("Error getting appointments:", err.message);
+      return res.status(500).json({ error: "Internal Server Error." });
     }
   });
 

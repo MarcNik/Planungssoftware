@@ -28,7 +28,6 @@ function createTable() {
             title TEXT NOT NULL,
             description TEXT,
             date DATE NOT NULL,
-            time TIME NOT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (account_id) REFERENCES Users(id) ON DELETE CASCADE
         );
@@ -164,11 +163,33 @@ async function getEmail(username) {
     }
 }
 
-async function addAppointment(accountId, title, description, date, time) {
+async function getUserIdByUsername(username) {
+    return new Promise((resolve, reject) => {
+        db.get(
+            `SELECT id FROM Users WHERE username = ?`,
+            [username],
+            (err, row) => {
+                if (err) {
+                    reject(err); // Fehler weitergeben
+                } else if (row) {
+                    resolve(row.id); // ID des Benutzers zurückgeben
+                } else {
+                    resolve(null); // Benutzer nicht gefunden, gibt null zurück
+                }
+            }
+        );
+    });
+}
+
+async function addAppointment(username, title, description, date) {
+    const accountId = await getUserIdByUsername(username);
+    if (!accountId) {
+        throw new Error('User not found');
+    }
     return new Promise((resolve, reject) => {
         db.run(
-            `INSERT INTO Appointments (account_id, title, description, date, time) VALUES (?, ?, ?, ?, ?)`,
-            [accountId, title, description, date, time],
+            `INSERT INTO Appointments (account_id, title, description, date) VALUES (?, ?, ?, ?)`,
+            [accountId, title, description, date],
             function (err) {
                 if (err) {
                     reject(err); // Fehler weitergeben
@@ -180,10 +201,14 @@ async function addAppointment(accountId, title, description, date, time) {
     });
 }
 
-async function getAppointmentsByAccountId(accountId) {
+async function getAppointmentsByAccountId(username) {
+    const accountId = await getUserIdByUsername(username);
+    if (!accountId) {
+        throw new Error('User not found');
+    }
     return new Promise((resolve, reject) => {
         db.all(
-            `SELECT * FROM Appointments WHERE account_id = ? ORDER BY date, time`,
+            `SELECT * FROM Appointments WHERE account_id = ? ORDER BY date`,
             [accountId],
             (err, rows) => {
                 if (err) {

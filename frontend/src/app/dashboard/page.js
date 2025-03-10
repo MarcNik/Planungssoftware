@@ -65,6 +65,9 @@ export default function Page() {
             return;
         }
 
+        const dateTimeString = `${date}T${time}:00`; // Die Zeit bekommt noch Sekunden
+        const dateTime = new Date(dateTimeString);
+
         setAppointments([...appointments, { date, time, description }]);
         setConfirmation("Appointment saved successfully!");
         setDate("");
@@ -87,6 +90,38 @@ export default function Page() {
         localStorage.setItem("username", username);
         localStorage.setItem("email", email);
         setIsEditModalOpen(false);
+    };
+
+    const add_appointment = async () => {
+        const t = localStorage.getItem("authToken");
+        console.log(t);
+        const response = await fetch("/api/add-appointment", {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${t}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ title: "Test", description: "Test Description", date: new Date(Date.UTC(2025, 2, 10, 15, 30, 0, 0)), token: t }),
+        });
+
+        const result = await response.json();
+    };
+
+    const get_appointments = async () => {
+        const t = localStorage.getItem("authToken");
+        console.log(t);
+        const response = await fetch("/api/add-appointment", {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${t}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ token: t }),
+        });
+
+        const result = await response.json();
+
+        console.log(result);
     };
 
     return (
