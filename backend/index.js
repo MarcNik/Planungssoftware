@@ -15,6 +15,8 @@ const {
   getPasswordHashFromDB,
   get2FAStatus,
   getEmail,
+  addAppointment,
+  getAppointmentsByAccountId,
 } = require("./database.js");
 
 const {
@@ -22,6 +24,7 @@ const {
 } = require("./2FA.js");
 
 const { compare } = require("bcrypt");
+const { get } = require("http");
 
 const port = 5001;
 const secretKey = "your-secret-key"; // Geheimer Schlüssel für JWT

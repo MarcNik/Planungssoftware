@@ -11,17 +11,31 @@ const db = new sqlite3.Database('./userDatabase.db', (err) => {
 
 // Tabelle erstellen
 function createTable() {
-    const createTableSQL = `
-    CREATE TABLE IF NOT EXISTS Users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT NOT NULL,
-        password TEXT NOT NULL,
-        email TEXT NOT NULL,
-        Is2FAEnabled BOOLEAN NOT NULL DEFAULT 0
-    );`;
-    db.run(createTableSQL, (err) => {
+    const createTablesSQL = `
+        -- Erstellt die Users-Tabelle, falls sie nicht existiert
+        CREATE TABLE IF NOT EXISTS Users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT NOT NULL,
+            password TEXT NOT NULL,
+            email TEXT NOT NULL,
+            Is2FAEnabled BOOLEAN NOT NULL DEFAULT 0
+        );
+
+        -- Erstellt die Appointments-Tabelle mit einer Verknüpfung zur Users-Tabelle
+        CREATE TABLE IF NOT EXISTS Appointments (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            account_id INTEGER NOT NULL,
+            title TEXT NOT NULL,
+            description TEXT,
+            date DATE NOT NULL,
+            time TIME NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (account_id) REFERENCES Users(id) ON DELETE CASCADE
+        );
+    `;
+    db.exec(createTablesSQL, (err) => {
         if (err) {
-            console.error('Error creating table:', err.message);
+            console.error("Fehler beim Erstellen der Tabellen:", err);
         }
     });
 }
@@ -150,6 +164,38 @@ async function getEmail(username) {
     }
 }
 
+async function addAppointment(accountId, title, description, date, time) {
+    return new Promise((resolve, reject) => {
+        db.run(
+            `INSERT INTO Appointments (account_id, title, description, date, time) VALUES (?, ?, ?, ?, ?)`,
+            [accountId, title, description, date, time],
+            function (err) {
+                if (err) {
+                    reject(err); // Fehler weitergeben
+                } else {
+                    resolve(this.lastID); // Gibt die ID des neuen Eintrags zurück
+                }
+            }
+        );
+    });
+}
+
+async function getAppointmentsByAccountId(accountId) {
+    return new Promise((resolve, reject) => {
+        db.all(
+            `SELECT * FROM Appointments WHERE account_id = ? ORDER BY date, time`,
+            [accountId],
+            (err, rows) => {
+                if (err) {
+                    reject(err); // Fehler weitergeben
+                } else {
+                    resolve(rows); // Alle gefundenen Termine zurückgeben
+                }
+            }
+        );
+    });
+}
+
 // Datenbankverbindung schließen
 process.on('SIGINT', () => {
     db.close((err) => {
@@ -170,4 +216,6 @@ module.exports = {
     getPasswordHashFromDB,
     get2FAStatus,
     getEmail,
+    addAppointment,
+    getAppointmentsByAccountId,
 };
