@@ -73,7 +73,7 @@ export default function Page() {
             setConfirmation("Please fill in all fields to save an appointment.");
             return;
         }
-    
+
         const newAppointment = {
             fromDate,
             toDate,
@@ -82,10 +82,10 @@ export default function Page() {
             dateOption: selectedOption !== "option2" && fromDate !== toDate ? dateOption : null,
             todoItems: selectedOption === "option2" ? todoItems : null
         };
-    
+
         setAppointments([...appointments, newAppointment]);
         setConfirmation("Appointment saved successfully!");
-    
+
         setFromDate("");
         setToDate("");
         setTime("");
@@ -94,7 +94,7 @@ export default function Page() {
         setDateOption("fullDay");
         setIsModalOpen(false);
     };
-    
+
 
 
 
@@ -167,130 +167,130 @@ export default function Page() {
             )}
 
             {/* open calendar popup/modal on click */}
-<Calendar onChange={handleCalendarChange} value={selectedDate} />
+            <Calendar onChange={handleCalendarChange} value={selectedDate} />
 
-{/* MODAL to add appoints / time off / todo List */}
-{isModalOpen && (
-    <div className="modalOverlay">
-        <div className="modalContent" id="modalCalendar">
-            <h2>Add {selectedOption === "option2" ? "To-Do List" : "Appointment"}</h2>
+            {/* MODAL to add appoints / time off / todo List */}
+            {isModalOpen && (
+                <div className="modalOverlay">
+                    <div className="modalContent" id="modalCalendar">
+                        <h2>Add {selectedOption === "option2" ? "To-Do List" : "Appointment"}</h2>
 
-            {/* Select Box */}
-            <label className="InputFontStacked fullWidth">
-                Select Option:
-                <select value={selectedOption} onChange={(e) => setSelectedOption(e.target.value)}>
-                    <option value="">Please select...</option>
-                    <option value="option1">Appointment</option>
-                    <option value="option2">To-Do</option>
-                    <option value="option3">Absence</option>
-                </select>
-            </label>
+                        {/* Select Box */}
+                        <label className="InputFontStacked fullWidth">
+                            Select Option:
+                            <select value={selectedOption} onChange={(e) => setSelectedOption(e.target.value)}>
+                                <option value="">Please select...</option>
+                                <option value="option1">Appointment</option>
+                                <option value="option2">To-Do</option>
+                                <option value="option3">Absence</option>
+                            </select>
+                        </label>
 
-            {/* Date Range */}
-            <div className="dateInputContainer">
-                <label className="InputFontStacked">
-                    From:
-                    <input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} />
-                </label>
-                <label className="InputFontStacked">
-                    To:
-                    <input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} />
-                </label>
+                        {/* Date Range */}
+                        <div className="dateInputContainer">
+                            <label className="InputFontStacked">
+                                From:
+                                <input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} />
+                            </label>
+                            <label className="InputFontStacked">
+                                To:
+                                <input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} />
+                            </label>
 
-                {/* Bedingte Anzeige des dritten Inputs */}
-                {selectedOption !== "option2" && fromDate === toDate ? (
-                    <label className="InputFontStacked">
-                        Time:
-                        <input type="time" value={time} onChange={(e) => setTime(e.target.value)} />
-                    </label>
-                ) : selectedOption !== "option2" ? (
-                    <label className="InputFontStacked">
-                        Option:
-                        <select value={dateOption} onChange={(e) => setDateOption(e.target.value)}>
-                            <option value="fullDay">Full Day</option>
-                            <option value="halfDay">First Half of Day</option>
-                            <option value="halfDay">Second Half of Day</option>
-                        </select>
-                    </label>
-                ) : null}
-            </div>
+                            {/* Time or Full/Half Day Box */}
+                            {selectedOption !== "option2" && fromDate === toDate ? (
+                                <label className="InputFontStacked">
+                                    Time:
+                                    <input type="time" value={time} onChange={(e) => setTime(e.target.value)} />
+                                </label>
+                            ) : selectedOption !== "option2" ? (
+                                <label className="InputFontStacked">
+                                    Option:
+                                    <select value={dateOption} onChange={(e) => setDateOption(e.target.value)}>
+                                        <option value="fullDay">Full Day</option>
+                                        <option value="halfDay">First Half of Day</option>
+                                        <option value="halfDay">Second Half of Day</option>
+                                    </select>
+                                </label>
+                            ) : null}
+                        </div>
 
-            {/* To-Do Punkte oder Beschreibung */}
-            {selectedOption === "option2" ? (
-                <div>
-                    <label className="InputFontStacked">To-Do List:</label>
-                    {todoItems.map((item, index) => (
-                        <input
-                            key={index}
-                            type="text"
-                            value={item}
-                            placeholder={`Task ${index + 1}`}
-                            onChange={(e) => {
-                                const newItems = [...todoItems];
-                                newItems[index] = e.target.value;
-                                setTodoItems(newItems);
-                            }}
-                        />
-                    ))}
-                    {todoItems.length < 5 && (
-                        <button className="ButtonDesign" onClick={() => setTodoItems([...todoItems, ""])}>+ Add Task</button>
-                    )}
+                        {/* Todo Points or Description */}
+                        {selectedOption === "option2" ? (
+                            <div>
+                                <label className="InputFontStacked">To-Do List:</label>
+                                {todoItems.map((item, index) => (
+                                    <input
+                                        key={index}
+                                        type="text"
+                                        value={item}
+                                        placeholder={`Task ${index + 1}`}
+                                        onChange={(e) => {
+                                            const newItems = [...todoItems];
+                                            newItems[index] = e.target.value;
+                                            setTodoItems(newItems);
+                                        }}
+                                    />
+                                ))}
+                                {todoItems.length < 5 && (
+                                    <button className="ButtonDesign" onClick={() => setTodoItems([...todoItems, ""])}>+ Add Task</button>
+                                )}
+                            </div>
+                        ) : (
+                            <label className="InputFontStacked">
+                                Description:
+                                <input type="text" value={description} onChange={(e) => setDescription(e.target.value)} />
+                            </label>
+                        )}
+
+                        {/* Buttons */}
+                        <div className="modalButtons">
+                            <button className="ButtonDesign" onClick={saveAppointment}>Save</button>
+                            <button className="ButtonDesign" onClick={() => setIsModalOpen(false)}>Cancel</button>
+                        </div>
+                    </div>
                 </div>
-            ) : (
-                <label className="InputFontStacked">
-                    Description:
-                    <input type="text" value={description} onChange={(e) => setDescription(e.target.value)} />
-                </label>
             )}
 
-            {/* Buttons */}
-            <div className="modalButtons">
-                <button className="ButtonDesign" onClick={saveAppointment}>Save</button>
-                <button className="ButtonDesign" onClick={() => setIsModalOpen(false)}>Cancel</button>
-            </div>
-        </div>
-    </div>
-)}
-
-<h3 className="TitleFont">Upcoming Appointments</h3>
-{appointments
-    .filter(appt => new Date(appt.toDate) >= new Date()) // Nur zukünftige Termine
-    .sort((a, b) => new Date(a.fromDate) - new Date(b.fromDate)) // Nach Datum sortieren
-    .map((appt, index) => (
-        <div key={index} className="appointmentItem">
-            <strong>{new Date(appt.fromDate).toLocaleDateString()} → {new Date(appt.toDate).toLocaleDateString()}</strong>
-            {appt.todoItems ? (
-                <div>
-                    <strong>To-Do:</strong>
-                    <ul>
-                        {appt.todoItems.map((task, taskIndex) => (
-                            <li key={taskIndex} className="todoItem">
-                                <input
-                                    type="checkbox"
-                                    checked={completedTodos[`${index}-${taskIndex}`] || false}
-                                    onChange={() => {
-                                        setCompletedTodos(prev => ({
-                                            ...prev,
-                                            [`${index}-${taskIndex}`]: !prev[`${index}-${taskIndex}`]
-                                        }));
-                                    }}
-                                />
-                                <span className={completedTodos[`${index}-${taskIndex}`] ? "completed" : ""}>
-                                    {task}
-                                </span>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-            ) : (
-                <p>
-                    {appt.time ? `${appt.time} - ` : ""}
-                    {appt.description}
-                    {appt.dateOption ? ` (${appt.dateOption})` : ""}
-                </p>
-            )}
-        </div>
-    ))}
+            <h3 className="TitleFont">Upcoming Appointments</h3>
+            {appointments
+                .filter(appt => new Date(appt.toDate) >= new Date())
+                .sort((a, b) => new Date(a.fromDate) - new Date(b.fromDate))
+                .map((appt, index) => (
+                    <div key={index} className="appointmentItem">
+                        <strong>{new Date(appt.fromDate).toLocaleDateString()} → {new Date(appt.toDate).toLocaleDateString()}</strong>
+                        {appt.todoItems ? (
+                            <div>
+                                <strong>To-Do:</strong>
+                                <ul>
+                                    {appt.todoItems.map((task, taskIndex) => (
+                                        <li key={taskIndex} className="todoItem">
+                                            <input
+                                                type="checkbox"
+                                                checked={completedTodos[`${index}-${taskIndex}`] || false}
+                                                onChange={() => {
+                                                    setCompletedTodos(prev => ({
+                                                        ...prev,
+                                                        [`${index}-${taskIndex}`]: !prev[`${index}-${taskIndex}`]
+                                                    }));
+                                                }}
+                                            />
+                                            <span className={completedTodos[`${index}-${taskIndex}`] ? "completed" : ""}>
+                                                {task}
+                                            </span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        ) : (
+                            <p>
+                                {appt.time ? `${appt.time} - ` : ""}
+                                {appt.description}
+                                {appt.dateOption ? ` (${appt.dateOption})` : ""}
+                            </p>
+                        )}
+                    </div>
+                ))}
 
         </div>
     );
