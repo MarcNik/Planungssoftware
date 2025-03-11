@@ -203,17 +203,17 @@ app.prepare().then(() => {
 
   // Termin hinzufügen (Token wird benötigt)
   server.post("/api/add-appointment", authenticateToken, async (req, res) => {
-    const { title, date, token } = req.body;
+    const { title, description, date, token } = req.body;
 
-    if (!title || !date || !token) {
-      return res.status(400).json({ error: "Title, date, and account ID are required." });
+    if (!title || !description || !date || !token) {
+      return res.status(400).json({ error: "Title, description, date, and account ID are required." });
     }
 
     const decoded = jwt.verify(token, secretKey);
     const username = decoded.username;
 
     try {
-      await addAppointment(username, title, "Test", date);
+      await addAppointment(username, title, description, date);
       return res.status(201).json({ message: "Appointment added successfully." });
     } catch (err) {
       console.error("Error adding appointment:", err.message);

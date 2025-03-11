@@ -42,6 +42,8 @@ export default function Page() {
                 }
             })
             .catch((err) => console.error("Error fetching user data:", err));
+
+            get_appointments();
     }, [router]);
 
     const toggleMenu = () => {
@@ -68,6 +70,8 @@ export default function Page() {
         const dateTimeString = `${date}T${time}:00`; // Die Zeit bekommt noch Sekunden
         const dateTime = new Date(dateTimeString);
 
+        add_appointment("Test", description, dateTime);
+
         setAppointments([...appointments, { date, time, description }]);
         setConfirmation("Appointment saved successfully!");
         setDate("");
@@ -76,7 +80,7 @@ export default function Page() {
     };
 
     const handleCalendarChange = (selectedDate) => {
-        setSelectedDate(selectedDate);
+        setSelectedDate(new Date(Date.UTC(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate())));
         setDate(formatDateToLocal(selectedDate));
     };
 
@@ -92,16 +96,15 @@ export default function Page() {
         setIsEditModalOpen(false);
     };
 
-    const add_appointment = async () => {
+    const add_appointment = async (title, description, date) => {
         const t = localStorage.getItem("authToken");
-        console.log(t);
         const response = await fetch("/api/add-appointment", {
             method: "POST",
             headers: {
                 "Authorization": `Bearer ${t}`,
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({ title: "Test", description: "Test Description", date: new Date(Date.UTC(2025, 2, 10, 15, 30, 0, 0)), token: t }),
+            body: JSON.stringify({ title, description, date, token: t }),
         });
 
         const result = await response.json();
@@ -109,8 +112,7 @@ export default function Page() {
 
     const get_appointments = async () => {
         const t = localStorage.getItem("authToken");
-        console.log(t);
-        const response = await fetch("/api/add-appointment", {
+        const response = await fetch("/api/get-appointment", {
             method: "POST",
             headers: {
                 "Authorization": `Bearer ${t}`,
@@ -120,8 +122,17 @@ export default function Page() {
         });
 
         const result = await response.json();
+        const appointments = result.appointments;
 
-        console.log(result);
+        const appointments_arr = appointments.map(appointment => {
+            return {
+                date: new Date(appointment.date).toISOString().split("T")[0],
+                time: new Date(appointment.date).toTimeString().split(":").slice(0, 2).join(":"),
+                description: appointment.description
+            };
+        });
+
+        setAppointments(appointments_arr);
     };
 
     return (
