@@ -3,7 +3,6 @@ const next = require("next");
 const path = require("path");
 const https = require("https");
 const fs = require("fs");
-const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
 
 const {
@@ -19,15 +18,7 @@ const {
   getAppointmentsByAccountId,
 } = require("./database.js");
 
-const {
-  create2FACode,
-} = require("./2FA.js");
-
-const { compare } = require("bcrypt");
-const { get } = require("http");
-
 const port = 5001;
-const secretKey = "your-secret-key"; // Geheimer Schlüssel für JWT
 
 const dev = process.env.NODE_ENV !== "production";
 const app = next({ dev, dir: path.join(__dirname, "../frontend") });
@@ -39,7 +30,7 @@ const options = {
   cert: fs.readFileSync("cert.pem"),
 };
 
-let twoFACodes = {}; // Speichert temporäre 2FA-Codes
+let twoFACodes = {}; // Speichert 2FA-Codes mit Benutzernamen und Ablaufzeit
 
 // Datenbank-Tabelle erstellen
 createTable();
@@ -59,75 +50,62 @@ app.prepare().then(() => {
   server.use(express.json());
   server.use("/public", express.static(path.join(__dirname, "frontend/public")));
 
-  // JWT-Authentifizierungs-Middleware
-  function authenticateToken(req, res, next) {
-    const token = req.headers.authorization?.split(" ")[1]; // Token aus dem Header
-    if (!token) {
-      return res.status(401).json({ message: "Unauthorized" });
-    }
-
-    try {
-      jwt.verify(token, secretKey); // Überprüfung des Tokens
-      next(); // Wenn das Token gültig ist, fahre fort
-    } catch (error) {
-      return res.status(401).json({ message: "Invalid token" });
-    }
+  function create2FACode() {
+    return Math.floor(100000 + Math.random() * 900000).toString();
   }
 
   function send2FACode(email, code) {
     const mailOptions = {
-        from: 'abc', // E-Mail-Adresse des Absenders
-        to: email, // Empfänger
-        subject: 'Dein 2FA-Code', // Betreff der E-Mail
-        text: `Hallo,\n\nDein 2FA-Code lautet: ${code}\n\nDieser Code ist für deine Sicherheit, bitte teile ihn niemandem mit.` // Nachricht
+      from: 'abc', // E-Mail-Adresse des Absenders
+      to: email, // Empfänger
+      subject: 'Dein 2FA-Code', // Betreff der E-Mail
+      text: `Hallo,\n\nDein 2FA-Code lautet: ${code}\n\nDieser Code ist für deine Sicherheit, bitte teile ihn niemandem mit.` // Nachricht
     };
 
     // Versenden der E-Mail
     transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-            console.log('Fehler beim Senden der E-Mail:', error);
-        } else {
-            console.log('E-Mail gesendet:', info.response);
-        }
+      if (error) {
+        console.log('Fehler beim Senden der E-Mail:', error);
+      } else {
+        console.log('E-Mail gesendet:', info.response);
+      }
     });
   }
 
-  // Registrierung (Token wird hier nicht benötigt)
+  // Registrierung
   server.post("/api/register", async (req, res) => {
     const { email, password, username, is2FAEnabled } = req.body;
 
     if (!email || !password || !username || is2FAEnabled === undefined) {
-        return res.status(400).json({ error: "Alle Felder müssen ausgefüllt werden." });
+      return res.status(400).json({ error: "Alle Felder müssen ausgefüllt werden." });
     }
 
     try {
-        // Überprüfen, ob der Benutzername oder die E-Mail bereits existiert
-        const usernameExists = await doesUsernameExist(username);
-        const emailExists = await doesEmailExist(email);
+      // Überprüfen, ob der Benutzername oder die E-Mail bereits existiert
+      const usernameExists = await doesUsernameExist(username);
+      const emailExists = await doesEmailExist(email);
 
-        if (usernameExists) {
-            return res.status(400).json({ error: "Benutzername existiert bereits." });
-        }
+      if (usernameExists) {
+        return res.status(400).json({ error: "Benutzername existiert bereits." });
+      }
 
-        if (emailExists) {
-            return res.status(400).json({ error: "E-Mail existiert bereits." });
-        }
+      if (emailExists) {
+        return res.status(400).json({ error: "E-Mail existiert bereits." });
+      }
 
-        // Passwort hashen
-        const hashedPassword = hashPassword(password);
+      // Passwort hashen
+      const hashedPassword = hashPassword(password);
 
-        // Benutzer zur Datenbank hinzufügen
-        await addUser(username, hashedPassword, email, is2FAEnabled);
-
-        const token = jwt.sign({ username }, secretKey, { expiresIn: "1h" }); // Token generieren
-        return res.status(200).json({ token });
+      // Benutzer zur Datenbank hinzufügen
+      await addUser(username, hashedPassword, email, is2FAEnabled);
+      return res.status(200).json({ message: "User registered successfully" });
     } catch (err) {
-        console.error("Fehler bei der Registrierung:", err.message);
-        return res.status(500).json({ error: "Interner Serverfehler." });
+      console.error("Fehler bei der Registrierung:", err.message);
+      return res.status(500).json({ error: "Interner Serverfehler." });
     }
   });
 
-  // Login und Token-Generierung
+  // Login
   server.post("/api/login", async (req, res) => {
     createTable();
 
@@ -141,14 +119,14 @@ app.prepare().then(() => {
       // Prüft, ob der Benutzername schon vergeben ist
       const isUsernameTaken = await doesUsernameExist(username);
       if (!isUsernameTaken) {
-          console.log("Benutzername existiert nicht");
-          return res.status(400).json({ error: 'Username or Password is wrong' });
+        console.log("Benutzername existiert nicht");
+        return res.status(400).json({ error: 'Username or Password is wrong' });
       } else {
-          console.log("Nutzername gefunden");
+        console.log("Nutzername gefunden");
       }
 
       // Ruft den gespeicherten Passwort-Hash des Benutzers aus der Datenbank ab
-      const storedPasswordHash = await getPasswordHashFromDB(username); // Beispiel, anpassen je nach DB
+      const storedPasswordHash = await getPasswordHashFromDB(username);
 
       const hashedPassword = hashPassword(password);
 
@@ -164,22 +142,22 @@ app.prepare().then(() => {
 
       const is2FAEnabled = await get2FAStatus(username);
       if (is2FAEnabled === 1) {
-        const tempToken = jwt.sign({ username }, secretKey, { expiresIn: "5m" });
-        twoFACodes[tempToken] = create2FACode(); // 2FA-Code generieren und temporär speichern
+        const code = create2FACode();
+        twoFACodes[username] = {
+            code: code,
+            expires: Date.now() + 300000 // 5 Minuten Ablaufzeit
+        };
 
-        console.log(twoFACodes[tempToken]); // 2FA-Code in der Konsole ausgeben (ENTFERNEN NACH DEM TESTEN)
+        console.log(twoFACodes[username].code); // 2FA-Code in der Konsole ausgeben (ENTFERNEN NACH DEM TESTEN)
 
-        //send2FACode(getEmail(username), twoFACodes[tempToken]); // 2FA-Code per E-Mail senden
+        send2FACode(getEmail(username), twoFACodes[username].code); // 2FA-Code per E-Mail senden
 
-        return res.status(200).json({ is2FAEnabled: true, tempToken });
+        return res.status(200).json({ is2FAEnabled: true, username });
       }
-
-      // Benutzer erfolgreich eingeloggt
-      const token = jwt.sign({ username }, secretKey, { expiresIn: "1h" }); // Token generieren
-      return res.status(200).json({ token });
+      return res.status(200).json({ message: "Login successful", username });
     } catch (err) {
-        console.error('Fehler bei dem Login:', err.message);
-        res.status(500).json({ error: 'Internal Server Error' });
+      console.error('Fehler bei dem Login:', err.message);
+      res.status(500).json({ error: 'Internal Server Error' });
     }
 
     return res.status(401).json({ error: "Invalid credentials" });
@@ -187,30 +165,33 @@ app.prepare().then(() => {
 
   // 2FA-Verifizierung
   server.post("/api/verify-2fa", (req, res) => {
-    const { tempToken, twoFACode } = req.body;
-    if (twoFACode !== twoFACodes[tempToken]) {  // Platzhalter "123" für den echten 2FA-Code
+    const { username, twoFACode } = req.body;
+    const storedCode = twoFACodes[username];
+
+    if (!storedCode) {
+        return res.status(400).json({ error: "2FA code not found." });
+    }
+
+    if (storedCode.expires < Date.now()) {
+        delete twoFACodes[username];
+        return res.status(400).json({ error: "2FA code expired." });
+    }
+
+    if (twoFACode !== storedCode.code) {
         return res.status(400).json({ error: "Invalid 2FA Code" });
     }
 
-    try {
-        const decoded = jwt.verify(tempToken, secretKey);
-        const token = jwt.sign({ username: decoded.username }, secretKey, { expiresIn: "1h" });
-        return res.status(200).json({ token });
-    } catch (err) {
-        return res.status(401).json({ error: "Invalid or expired token" });
-    }
+    delete twoFACodes[username]; // Code nach erfolgreicher Überprüfung löschen
+    return res.status(200).json({ message: "2FA verification successful" });
   });
 
-  // Termin hinzufügen (Token wird benötigt)
-  server.post("/api/add-appointment", authenticateToken, async (req, res) => {
-    const { title, description, date, token } = req.body;
+  // Termin hinzufügen
+  server.post("/api/add-appointment", async (req, res) => {
+    const { title, description, date, username } = req.body;
 
-    if (!title || !description || !date || !token) {
-      return res.status(400).json({ error: "Title, description, date, and account ID are required." });
+    if (!title || !description || !date || !username) {
+      return res.status(400).json({ error: "Title, description, date, and username are required." });
     }
-
-    const decoded = jwt.verify(token, secretKey);
-    const username = decoded.username;
 
     try {
       await addAppointment(username, title, description, date);
@@ -221,28 +202,17 @@ app.prepare().then(() => {
     }
   });
 
-  server.post("/api/get-appointment", authenticateToken, async (req, res) => {
-    const { token } = req.body;
 
-    if (!token) {
-      return res.status(400).json({ error: "Account ID is required." });
-    }
-
-    const decoded = jwt.verify(token, secretKey);
-    const username = decoded.username;
-
+  // Benutzerdaten abrufen
+  server.get("/api/user", async (req, res) => {
+    const { username } = req.query;
     try {
-      const appointments = await getAppointmentsByAccountId(username);
-      return res.status(200).json({ appointments });
+      const email = await getEmail(username);
+      res.status(200).json({ username, email });
     } catch (err) {
-      console.error("Error getting appointments:", err.message);
-      return res.status(500).json({ error: "Internal Server Error." });
+      console.error("Fehler beim Abrufen der Benutzerdaten:", err.message);
+      res.status(500).json({ error: "Interner Serverfehler." });
     }
-  });
-
-  // Geschützte Route (Token wird benötigt)
-  server.get("/api/protected", authenticateToken, (req, res) => {
-    res.status(200).json({ message: "This is a protected route. Access granted!" });
   });
 
   // Alle anderen Routen an Next.js übergeben

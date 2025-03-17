@@ -27,30 +27,33 @@ export default function Page() {
     const [todoItems, setTodoItems] = useState([]);
     const [completedTodos, setCompletedTodos] = useState({});
 
-    // Beim Laden der Seite: Authentifizierung prüfen und Benutzerdaten laden
+    // Beim Laden der Seite: Benutzerdaten laden
     useEffect(() => {
-        const token = localStorage.getItem("authToken");
-        if (!token) {
+        const storedUsername = localStorage.getItem("username");
+        if (!storedUsername) {
             router.push("https://localhost:5001/");
             return;
         }
 
-        fetch("/api/user", {
-            headers: { Authorization: `Bearer ${token}` },
-        })
-            .then((res) => res.json())
-            .then((data) => {
-                if (data.error) {
-                    console.error(data.error);
-                    router.push("https://localhost:5001/");
-                } else {
-                    setUsername(data.username);
-                    setEmail(data.email);
-                }
-            })
-            .catch((err) => console.error("Error fetching user data:", err));
+        setUsername(storedUsername); // Setze den Benutzernamen sofort
 
-            get_appointments();
+        fetch(`/api/user?username=${storedUsername}`)
+            .then((res) => {
+                if (!res.ok) {
+                    console.error("Error fetching user data: Network response was not ok");
+                    return; // Beende die Funktion, aber leite nicht weiter
+                }
+                return res.json();
+            })
+            .then((data) => {
+                setEmail(data.email);
+            })
+            .catch((err) => {
+                console.error("Error fetching user data:", err);
+                // Hier könntest du eine Fehlermeldung anzeigen, aber nicht weiterleiten
+            });
+
+        get_appointments(storedUsername);
     }, [router]);
 
     const toggleMenu = () => {
@@ -62,7 +65,6 @@ export default function Page() {
     };
 
     const handleLogout = () => {
-        localStorage.removeItem("authToken");
         localStorage.removeItem("username");
         localStorage.removeItem("email");
         window.location.href = "https://localhost:5001/";

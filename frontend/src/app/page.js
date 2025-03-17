@@ -75,9 +75,8 @@ export default function Page() {
                 setIs2FAPending(true);
                 setTempToken(result.tempToken);
             } else {
-                localStorage.setItem("authToken", result.token);
-                setSuccess("Login successful! Redirecting...");
-                setTimeout(() => router.push("/dashboard"), 2000);
+                localStorage.setItem("username", username); // Benutzername speichern
+                router.push("/dashboard");
             }
         } catch (error) {
             setError("An error occurred during login.");
@@ -116,9 +115,8 @@ export default function Page() {
                 return;
             }
 
-            localStorage.setItem("authToken", result.token);
-            setSuccess("Registration successful! Redirecting...");
-            setTimeout(() => router.push("/dashboard"), 2000);
+            localStorage.setItem("username", username); // Benutzername speichern
+            router.push("/dashboard");
         } catch (error) {
             setError("An error occurred during registration.");
         }
@@ -138,8 +136,8 @@ export default function Page() {
 
             const result = await response.json();
 
-            if (result.token) {
-                localStorage.setItem("authToken", result.token);
+            if (response.ok) {
+                localStorage.setItem("username", username);
                 setSuccess("Login successful! Redirecting...");
                 setTimeout(() => router.push("/dashboard"), 2000);
             } else {
