@@ -210,7 +210,15 @@ input[type="checkbox"]:checked {
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
     text-align: center;
+}
+ 
+#modalLogin {
     width: 300px;
+}
+
+#modalCalendar {
+    width: 600px;
+    height: 450px;
 }
 
 .modalHeader {
@@ -227,8 +235,31 @@ input[type="checkbox"]:checked {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
+.fullWidth select {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 12px;
+}
+
+.dateInputContainer {
+    display: flex;
+    gap: 30px;
+    align-items: center;
+}
+
+.smallInput input {
+    width: 80px;
+}
+
+
 .profileMenu {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
+    margin-bottom: 10px;
+ }
+ 
+ .completed {
+     text-decoration: line-through;
+     color: gray;
 }
