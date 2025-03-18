@@ -253,11 +253,56 @@ input[type="checkbox"]:checked {
 
 
 .profileMenu {
+    position: fixed;
+    top: 0;
+    right: -200px;
+    width: 200px;
+    height: 100%;
+    background: #2a2a2a;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
     display: flex;
     flex-direction: column;
-    align-items: flex-end;
+    justify-content: flex-end;
+    transition: right 0.3s ease-in-out;
+    z-index: 1001;
+    padding: 20px;
+}
+
+.profileMenu.open {
+    right: 0;
+}
+
+.profileMenu .ButtonDesign {
+    width: 100%;
     margin-bottom: 10px;
- }
+    padding: 12px;
+    text-align: center;
+    border-radius: 5px;
+    background: #333;
+    color: white;
+    border: none;
+    font-size: 20px;
+}
+
+.profileMenu .closeButton {
+    width: 100%;
+    text-align: center;
+    background: transparent;
+    border: none;
+    color: white;
+    
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.profileMenuButtons {
+    margin-bottom: 50px;
+}
+
+.closeButton {
+    font-size: 15px;
+    
+}
  
  .completed {
      text-decoration: line-through;

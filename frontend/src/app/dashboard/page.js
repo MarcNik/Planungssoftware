@@ -175,8 +175,11 @@ export default function Page() {
             </div>
 
             {/* Profile menu */}
-            {isMenuOpen && (
-                <div className="profileMenu">
+            <div className={`profileMenu ${isMenuOpen ? 'open' : ''}`}>
+                <button className="closeButton" onClick={toggleMenu}>
+                    Schließen X
+                </button>
+                <div className="profileMenuButtons">
                     <button className="ButtonDesign" onClick={toggleEditModal}>
                         Edit
                     </button>
@@ -184,7 +187,8 @@ export default function Page() {
                         Logout
                     </button>
                 </div>
-            )}
+            </div>
+            
 
             {/* Modal for profile editing */}
             {isEditModalOpen && (

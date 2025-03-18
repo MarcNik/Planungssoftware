@@ -192,6 +192,7 @@ async function addAppointment(username, title, description, date) {
             [accountId, title, description, date],
             function (err) {
                 if (err) {
+                    console.error('Error adding appointment:', err);
                     reject(err); // Fehler weitergeben
                 } else {
                     resolve(this.lastID); // Gibt die ID des neuen Eintrags zurück
@@ -212,9 +213,10 @@ async function getAppointmentsByAccountId(username) {
             [accountId],
             (err, rows) => {
                 if (err) {
-                    reject(err); // Fehler weitergeben
+                    console.error("error getting appointments:", err);
+                    reject(err);
                 } else {
-                    resolve(rows); // Alle gefundenen Termine zurückgeben
+                    resolve(rows);
                 }
             }
         );

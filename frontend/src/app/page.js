@@ -203,7 +203,7 @@ export default function Page() {
                     </p>
                 </>
             ) : (
-                <div>
+                <div className="twoFAContainer">
                     <form onSubmit={handle2FAVerify}>
                         <p>A code has been sent to you via email</p>
                         <label className="InputFontStacked">

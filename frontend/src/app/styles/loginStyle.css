@@ -1,144 +1,187 @@
-/* styling of whole body */
 body {
-    background-color: rgb(26, 26, 26);
+    background: rgba(20, 20, 20, 0.872); /* Ersetze dies durch dein Hintergrundbild */
+    background-size: cover;
+    background-position: center;
     margin: 0;
     padding: 0;
     height: 100vh;
-    color: white;
     display: flex;
     justify-content: center;
-    align-items: flex-start;
-    margin-top: 3%;
+    align-items: center;
 }
-/* styling for loginpage */
+
 .BackgroundLogin {
-    width: 30vw;
-    min-height: 250px;
-    background: rgba(0, 0, 0, 0.134);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-    overflow: hidden;
+    width: 400px;
+    background: rgba(0, 0, 0, 0.1); /* Transparenter Hintergrund */
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px); /* Blur-Effekt */
 }
 
-/* fontstyling for text marked with className="TitleFont" */
-.TitleFont{
-    font-size: 20px;
-    font-weight: bold;
+.TitleFont {
+    font-size: 32px;
+    font-weight: 600;
     color: #ffffff;
-    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-}
-
-/* fontstyling for text marked with className="InputFontSideBySide"
-everything with this class is formatted side by side */
-.InputFontSideBySide{
-    margin-top: 15px;
-    margin-bottom: 5px;
-    font-size: 15px;
-    font-weight: bold;
-    color: #ffffff;;
-    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-}
-
-/* fontstyling for text marked with className="InputFontStacked"
-everything with this class is formatted one under the other */
-.InputFontStacked{
-    font-size: 15px;
-    font-weight: bold;
-    color: #ffffff;;
-    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     text-align: center;
-    margin-top: 10px;
+    margin-bottom: 30px;
 }
 
-/* fontstyling for text marked with className="ErrorFont"
-for error message */
-.ErrorFont{
-    font-size: 15px;
-    font-weight: bold;
-    color: red;
-    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-    margin-top: 3%;
-    margin-bottom: 0%;
-}
-
-/* design for the buttons*/
-.ButtonDesign{
-    background: rgba(255, 255, 255, 0.062);
-    font-weight: bold;
+.InputFontStacked {
+    display: block;
+    margin-bottom: 20px;
+    font-size: 16px;
+    font-weight: 500;
     color: #ffffff;
-    border: 0px solid #ffffff;
-    padding: 6px 12px;
-    font-size: 14px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.1s ease, color 0.1s ease;
-    margin-top: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
 
-/* buttondesign when hovered over */
-.ButtonDesign:hover {
-    background-color: #ffffffdd;
-    color: rgb(0, 0, 0);
-    transform: scale(1.05);
-}
-
-/* styling for whole form */
-form {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-}
-
-/* styling for input fields */
 input[type="text"],
 input[type="password"],
-input[type="email"] {
-    width: 100%;
-    padding: 5px;
-    border: none;
-    border-radius: 5px;
-    background-color: rgba(255, 255, 255, 0.1);
-    color: white;
-    font-size: 14px;
-    margin-top: 5px;
-    margin-bottom: 5px;
-    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-}
-
-/* styling for input fields in focus */
+input[type="email"],
 input[type="text"]:focus,
 input[type="password"]:focus,
 input[type="email"]:focus {
+    width: calc(100% - 22px);
+    padding: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.3); /* Transparente Umrandung */
+    border-radius: 8px;
+    background-color: rgba(5, 5, 5, 0); /* Transparenter Hintergrund */
+    color: #ffffff;
+    font-size: 16px;
+    margin-top: 5px;
+    transition: border-color 0.3s ease;
     outline: none;
-    border-color: #ffffff;
-    background-color: rgba(255, 255, 255, 0.2);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
 
-/* checkbox design */
+.ButtonDesign {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #6a11cb, #2575fc); /* Farbverlauf */
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Subtiler Schatten */
+}
+
+.ButtonDesign:hover {
+    transform: translateY(-3px); /* Leichter Schwebeeffekt */
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3); /* Verstärkter Schatten beim Hover */
+}
+
+.ButtonDesign:active {
+    transform: translateY(-1px); /* Leichter Druckeffekt */
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2); /* Reduzierter Schatten beim Klicken */
+}
+
+.ErrorFont,
+.SuccessFont {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 16px;
+    font-weight: 500;
+    color: #ffffff;
+}
+
+.ErrorFont {
+    color: #d32f2f;
+}
+
+.SuccessFont {
+    color: #43a047;
+}
+
+.InputFontSideBySide {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 20px;
+}
+
 input[type="checkbox"] {
-    width: 15px;
-    height: 15px;
-    margin-right: 10px;
-    accent-color: #000000;
-    background-color: #d3d3d3;
-    border: 1px solid #aaa;
-    border-radius: 3px;
+    margin-left: 10px;
+    transform: scale(1.2);
 }
 
-/* checkbox design when checked*/
-input[type="checkbox"]:checked {
-    background-color: #000000;
-    border-color: #000000;
+p {
+    text-align: center;
+    margin-top: 20px;
+}
+
+p button {
+    background: none;
+    border: none;
+    color: #4a90e2;
+    cursor: pointer;
+    font-weight: 600;
+    padding: 0;
+}
+
+.twoFAContainer {
+    width: 400px; /* Gleiche Breite wie die Login-Box */
+    background: rgba(255, 255, 255, 0.1); /* Transparenter Hintergrund */
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px); /* Blur-Effekt */
+    text-align: center;
+}
+
+.twoFAContainer p {
+    font-size: 16px;
+    color: #ffffff;
+    margin-bottom: 20px;
+}
+
+.twoFAContainer label {
+    display: block;
+    margin-bottom: 20px;
+    font-size: 16px;
+    font-weight: 500;
+    color: #ffffff;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+.twoFAContainer input[type="text"] {
+    width: calc(100% - 22px);
+    padding: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    font-size: 16px;
+    margin-top: 5px;
+    transition: border-color 0.3s ease;
+    outline: none;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+.twoFAContainer button {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #6a11cb, #2575fc);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.twoFAContainer button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+}
+
+.twoFAContainer button:active {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
 }
