@@ -1,71 +1,176 @@
-/* styling of whole body */
 body {
-    background-color: rgb(26, 26, 26);
-    padding: 0;
-    height: 100vh;
+    background-color: #2a2a2a;
+}
+
+/* Styling für den gesamten Container */
+.dashboardContainer {
+    background-color: #1e1e1e; /* Dunkler Hintergrund */
+    color: #ffffff; /* Heller Text */
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+    width: 80%; /* Breite anpassen */
+    margin: 20px auto; /* Zentrieren */
+}
+
+/* Top Bar */
+.topBar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #333;
+}
+
+.welcomeText {
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.profileButton {
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.profileButton img {
+    width: 30px;
+    height: auto;
+}
+
+/* Termine Übersicht */
+.appointmentsOverview {
+    margin-top: 20px;
+}
+
+.sectionTitle {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+.appointmentItem {
+    background-color: #2a2a2a;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+/* Kalender-Button und Kalender */
+.calendarButton {
+    background: linear-gradient(135deg, #6a11cb, #2575fc);
     color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 20px;
+}
+
+.calendarContainer {
+    margin-top: 20px;
+}
+
+/* Modals */
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modalContent {
+    background-color: #1e1e1e;
+    padding: 20px;
+    border-radius: 12px;
+    width: 600px; /* Breite anpassen */
+}
+
+/* Profilmenü */
+.profileMenu {
+    position: fixed;
+    top: 0;
+    right: -200px;
+    width: 200px;
+    height: 100%;
+    background: #2a2a2a;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    transition: right 0.3s ease-in-out;
+    z-index: 1001;
+    padding: 20px;
+}
+
+.profileMenu.open {
+    right: 0;
+}
+
+.profileMenu .ButtonDesign {
+    width: 100%;
+    margin-bottom: 10px;
+    padding: 12px;
+    text-align: center;
+    border-radius: 5px;
+    background: #333;
+    color: white;
+    border: none;
+    font-size: 20px;
+}
+
+.profileMenu .closeButton {
+    width: 100%;
+    text-align: center;
+    background: transparent;
+    border: none;
+    color: white;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.profileMenuButtons {
+    margin-bottom: 50px;
+}
+
+.closeButton {
+    font-size: 15px;
+}
+
+.completed {
+    text-decoration: line-through;
+    color: gray;
+}
+
+/* Modal-spezifische Stile */
+.modalProfile {
+    width: 400px;
+}
+
+.modalHeader {
     display: flex;
     justify-content: center;
-    align-items: flex-start;
-    margin-top: 1%;
-    margin-bottom: 30%;
-    margin-left: 15%;
-    margin-right: 15%;
-}
-
-/* dashboard styling */
-.BackgroundDashboard {
-    width: 30vw;
-    min-height: 250px;
-    background: rgba(0, 0, 0, 0.134);
-    display: flex;
-    flex-direction: column;
     align-items: center;
-    justify-content: flex-start;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-    overflow: hidden;
+    margin-bottom: 20px;
 }
 
-/* fontstyling for text marked with className="TitleFont" */
-.TitleFont{
-    font-size: 25px;
-    font-weight: bold;
-    color: #ffffff;
-    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-    margin-top: 40px;
+.modalProfileImage {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-/* fontstyling for text marked with className="TimeFont" */
-.TimeFont{
-    font-size: 16px;
-    font-weight: bold;
-    color: #ffffff;
-    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-    margin-top: 5px;
-    margin-right: 10px;
-}
-
-/* fontstyling for text marked with className="InputFontSideBySide"
-everything with this class is formatted side by side */
-.InputFontSideBySide{
-    margin-top: 5px;
-    margin-bottom: 5px;
+.InputFontStacked {
     font-size: 15px;
     font-weight: bold;
-    color: #ffffff;;
-    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-    display: flex;
-    flex-direction: column;
-}
-
-/* fontstyling for text marked with className="InputFontStacked"
-everything with this class is formatted one under the other */
-.InputFontStacked{
-    font-size: 15px;
-    font-weight: bold;
-    color: #ffffff;;
+    color: #ffffff;
     font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
     display: flex;
     flex-direction: column;
@@ -75,19 +180,22 @@ everything with this class is formatted one under the other */
     margin-top: 10px;
 }
 
-/* fontstyling for text marked with className="ErrorFont"
-for error message */
-.ErrorFont{
-    font-size: 15px;
-    font-weight: bold;
-    color: red;
+input[type="text"],
+input[type="email"] {
+    width: 100%;
+    padding: 5px;
+    border: none;
+    border-radius: 5px;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+    font-size: 14px;
+    margin-top: 5px;
+    margin-bottom: 5px;
     font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-    margin-top: 3%;
-    margin-bottom: 0%;
+    font-weight: bold;
 }
 
-/* design for the buttons*/
-.ButtonDesign{
+.ButtonDesign {
     background: rgba(255, 255, 255, 0.062);
     font-weight: bold;
     color: #ffffff;
@@ -103,14 +211,12 @@ for error message */
     margin-right: 5px;
 }
 
-/* buttondesign when hovered over */
 .ButtonDesign:hover {
     background-color: #ffffffdd;
     color: rgb(0, 0, 0);
     transform: scale(1.05);
 }
 
-/* styling for whole form */
 form {
     display: flex;
     flex-direction: column;
@@ -119,12 +225,9 @@ form {
     width: 100%;
 }
 
-/* styling for input fields */
 input[type="date"],
 input[type="time"],
-textarea[type="description"],
-input[type="email"],
-input[type="text"]{
+textarea[type="description"] {
     width: 100%;
     padding: 5px;
     border: none;
@@ -138,16 +241,14 @@ input[type="text"]{
     font-weight: bold;
 }
 
-/* styling for input fields in focus */
 input[type="date"]:focus,
 input[type="time"]:focus,
-textarea[type="description"]:focus,
-input[type="email"]:focus,
-input[type="text"]:focus {
+textarea[type="description"]:focus {
     outline: none;
     border-color: #ffffff;
     background-color: rgba(255, 255, 255, 0.2);
 }
+
 
 /* checkbox design */
 input[type="checkbox"] {
