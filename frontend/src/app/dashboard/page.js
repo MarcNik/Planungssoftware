@@ -30,6 +30,7 @@ export default function Page() {
 
     // Beim Laden der Seite: Benutzerdaten laden
     useEffect(() => {
+        
         const storedUsername = localStorage.getItem("username");
         if (!storedUsername) {
             router.push("https://localhost:5001/");
@@ -71,16 +72,28 @@ export default function Page() {
         window.location.href = "https://localhost:5001/";
     };
 
-    const saveAppointment = () => {
+    const saveAppointment = async () => {
         if (!fromDate || !toDate || (selectedOption === "option2" ? todoItems.length === 0 : !description)) {
             setConfirmation("Please fill in all fields to save an appointment.");
             return;
         }
-
-        const dateTimeString = `${date}T${time}:00`; // Die Zeit bekommt noch Sekunden
+    
+        const dateTimeString = `${date}T${time}:00`;
         const dateTime = new Date(dateTimeString);
-
-        add_appointment("Test", description, dateTime);
+    
+        await add_appointment(
+            username,
+            "Appointment",
+            description,
+            dateTime,
+            fromDate,
+            toDate,
+            time,
+            dateOption,
+            selectedOption === "option2" ? todoItems : null
+        );
+    
+        
 
         const newAppointment = {
             fromDate,
@@ -90,7 +103,7 @@ export default function Page() {
             dateOption: selectedOption !== "option2" && fromDate !== toDate ? dateOption : null,
             todoItems: selectedOption === "option2" ? todoItems : null
         };
-    
+
         setAppointments([...appointments, newAppointment]);
         setConfirmation("Appointment saved successfully!");
         setFromDate("");
@@ -109,7 +122,7 @@ export default function Page() {
         setFromDate(formattedDate);
         setToDate(formattedDate);
         setIsModalOpen(true);
-        
+
     };
 
     const formatDateToLocal = (date) => {
@@ -124,7 +137,7 @@ export default function Page() {
         setIsEditModalOpen(false);
     };
 
-    const add_appointment = async (title, description, date) => {
+    const add_appointment = async (username, title, description, date, fromDate, toDate, time, dateOption, todoItems) => {
         const t = localStorage.getItem("authToken");
         const response = await fetch("/api/add-appointment", {
             method: "POST",
@@ -132,36 +145,56 @@ export default function Page() {
                 "Authorization": `Bearer ${t}`,
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({ title, description, date, token: t }),
+            body: JSON.stringify({  
+                username,
+                title,
+                description,
+                date,
+                fromDate,
+                toDate,
+                time,
+                dateOption,
+                todoItems,
+                token: t
+            }),
         });
 
         const result = await response.json();
     };
 
-    const get_appointments = async () => {
-        const t = localStorage.getItem("authToken");
-        const response = await fetch("/api/get-appointment", {
-            method: "POST",
-            headers: {
-                "Authorization": `Bearer ${t}`,
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ token: t }),
-        });
 
-        const result = await response.json();
-        const appointments = result.appointments;
+const get_appointments = async (username) => {
+    const response = await fetch("/api/get-appointment", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ username }),
+    });
 
-        const appointments_arr = appointments.map(appointment => {
-            return {
-                date: new Date(appointment.date).toISOString().split("T")[0],
-                time: new Date(appointment.date).toTimeString().split(":").slice(0, 2).join(":"),
-                description: appointment.description
-            };
-        });
+    const result = await response.json();
 
-        setAppointments(appointments_arr);
-    };
+    if (!response.ok) {
+        console.error("Fehler beim Abrufen der Termine:", result.error);
+        return;
+    }
+
+    const appointments = result.appointments || [];
+
+    const appointments_arr = appointments.map(appointment => ({
+        fromDate: appointment.from_date,
+        toDate: appointment.to_date,
+        time: appointment.time,
+        description: appointment.description,
+        dateOption: appointment.date_option,
+        todoItems: appointment.todo_items
+    }));
+
+    setAppointments(appointments_arr);
+};
+
+    
+    
 
     return (
         <div className="dashboardContainer">
@@ -174,7 +207,7 @@ export default function Page() {
                     <img src="/icons/profileicon.png" alt="Profile Icon" />
                 </button>
             </div>
-    
+
             {/* Profile menu */}
             <div className={`profileMenu ${isMenuOpen ? 'open' : ''}`}>
                 {/* Hier wird das Profilmenü eingefügt */}
@@ -190,7 +223,7 @@ export default function Page() {
                     </button>
                 </div>
             </div>
-    
+
             {/* Modal for profile editing */}
             {isEditModalOpen && (
                 <div className="modalOverlay">
@@ -214,7 +247,7 @@ export default function Page() {
                     </div>
                 </div>
             )}
-    
+
             {/* Termine Übersicht */}
             <div className="appointmentsOverview">
                 <h3 className="sectionTitle">Upcoming Appointments</h3>
@@ -225,7 +258,7 @@ export default function Page() {
                         <div key={index} className="appointmentItem">
                             <strong>{new Date(appt.fromDate).toLocaleDateString()} → {new Date(appt.toDate).toLocaleDateString()}</strong>
                             {/* Hier wird der Termininhalt eingefügt */}
-                            {appt.todoItems ? (
+                            {appt.todoItems && appt.todoItems.length > 0 ? (
                                 <div>
                                     <strong>To-Do:</strong>
                                     <ul>
@@ -258,25 +291,25 @@ export default function Page() {
                         </div>
                     ))}
             </div>
-    
+
             {/* Kalender-Button und Kalender */}
             <button className="calendarButton" onClick={() => setShowCalendar(!showCalendar)}>
                 {showCalendar ? "Hide Calendar" : "Show Calendar"}
             </button>
-    
+
             {showCalendar && (
                 <div className="calendarContainer">
                     <Calendar onChange={handleCalendarChange} value={selectedDate} />
                 </div>
             )}
-    
+
             {/* Modal to add appoints / time off / todo List */}
             {isModalOpen && (
                 <div className="modalOverlay">
                     <div className="modalContent modalCalendar">
                         {/* Hier wird das Termin-Modal eingefügt */}
                         <h2>Add {selectedOption === "option2" ? "To-Do List" : "Appointment"}</h2>
-    
+
                         {/* Select Box */}
                         <label className="InputFontStacked fullWidth">
                             Select Option:
@@ -287,7 +320,7 @@ export default function Page() {
                                 <option value="option3">Absence</option>
                             </select>
                         </label>
-    
+
                         {/* Date Range */}
                         <div className="dateInputContainer">
                             <label className="InputFontStacked">
@@ -298,7 +331,7 @@ export default function Page() {
                                 To:
                                 <input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} />
                             </label>
-    
+
                             {/* Bedingte Anzeige des dritten Inputs */}
                             {selectedOption !== "option2" && fromDate === toDate ? (
                                 <label className="InputFontStacked">
@@ -316,7 +349,7 @@ export default function Page() {
                                 </label>
                             ) : null}
                         </div>
-    
+
                         {/* To-Do Punkte oder Beschreibung */}
                         {selectedOption === "option2" ? (
                             <div>
@@ -344,7 +377,7 @@ export default function Page() {
                                 <input type="text" value={description} onChange={(e) => setDescription(e.target.value)} />
                             </label>
                         )}
-    
+
                         {/* Buttons */}
                         <div className="modalButtons">
                             <button className="ButtonDesign" onClick={saveAppointment}>Save</button>
