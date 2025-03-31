@@ -12,7 +12,6 @@ const db = new sqlite3.Database('./userDatabase.db', (err) => {
 // Tabelle erstellen
 function createTable() {
     const createTablesSQL = `
-        -- Erstellt die Users-Tabelle, falls sie nicht existiert
         CREATE TABLE IF NOT EXISTS Users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT NOT NULL,
@@ -21,13 +20,17 @@ function createTable() {
             Is2FAEnabled BOOLEAN NOT NULL DEFAULT 0
         );
 
-        -- Erstellt die Appointments-Tabelle mit einer Verknüpfung zur Users-Tabelle
         CREATE TABLE IF NOT EXISTS Appointments (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             account_id INTEGER NOT NULL,
             title TEXT NOT NULL,
             description TEXT,
-            date DATE NOT NULL,
+            date DATE,
+            from_date TEXT,
+            to_date TEXT,
+            time TEXT,
+            date_option TEXT,
+            todo_items TEXT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (account_id) REFERENCES Users(id) ON DELETE CASCADE
         );
@@ -38,6 +41,7 @@ function createTable() {
         }
     });
 }
+
 
 // Passwort hashen
 function hashPassword(password) {
@@ -181,21 +185,23 @@ async function getUserIdByUsername(username) {
     });
 }
 
-async function addAppointment(username, title, description, date) {
+async function addAppointment(username, title, description, date, fromDate, toDate, time, dateOption, todoItems)
+ {
     const accountId = await getUserIdByUsername(username);
     if (!accountId) {
         throw new Error('User not found');
     }
     return new Promise((resolve, reject) => {
         db.run(
-            `INSERT INTO Appointments (account_id, title, description, date) VALUES (?, ?, ?, ?)`,
-            [accountId, title, description, date],
-            function (err) {
+            `INSERT INTO Appointments (account_id, title, description, date, from_date, to_date, time, date_option, todo_items)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [accountId, title, description, date, fromDate, toDate, time, dateOption, JSON.stringify(todoItems)],
+            function (err) { 
                 if (err) {
                     console.error('Error adding appointment:', err);
-                    reject(err); // Fehler weitergeben
+                    reject(err);
                 } else {
-                    resolve(this.lastID); // Gibt die ID des neuen Eintrags zurück
+                    resolve(this.lastID);
                 }
             }
         );
@@ -204,24 +210,44 @@ async function addAppointment(username, title, description, date) {
 
 async function getAppointmentsByAccountId(username) {
     const accountId = await getUserIdByUsername(username);
+
     if (!accountId) {
         throw new Error('User not found');
     }
+
     return new Promise((resolve, reject) => {
         db.all(
             `SELECT * FROM Appointments WHERE account_id = ? ORDER BY date`,
             [accountId],
             (err, rows) => {
                 if (err) {
-                    console.error("error getting appointments:", err);
-                    reject(err);
-                } else {
-                    resolve(rows);
+                    console.error("Fehler beim SELECT:", err);
+                    return reject(err);
+                }
+
+                try {
+                    const parsed = rows.map(row => ({
+                        ...row,
+                        todo_items: (() => {
+                            try {
+                                return row.todo_items ? JSON.parse(row.todo_items) : null;
+                            } catch (e) {
+                                console.warn("Ungültiges JSON in todo_items:", row.todo_items);
+                                return null;
+                            }
+                        })()
+                    }));
+
+                    resolve(parsed);
+                } catch (parseErr) {
+                    console.error("Fehler beim Parsen der Termine:", parseErr);
+                    reject(parseErr);
                 }
             }
         );
     });
 }
+
 
 // Datenbankverbindung schließen
 process.on('SIGINT', () => {
