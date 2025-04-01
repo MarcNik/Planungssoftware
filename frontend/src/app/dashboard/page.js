@@ -10,7 +10,8 @@ import "../styles/calendar.css";
 export default function Page() {
     const router = useRouter();
     const [date, setDate] = useState("");
-    const [time, setTime] = useState("");
+    const [startTime, setStartTime] = useState("");
+    const [endTime, setEndTime] = useState("");
     const [description, setDescription] = useState("");
     const [appointments, setAppointments] = useState([]);
     const [selectedDate, setSelectedDate] = useState(new Date());
@@ -78,7 +79,7 @@ export default function Page() {
             return;
         }
     
-        const dateTimeString = `${date}T${time}:00`;
+        const dateTimeString = `${fromDate}T${startTime}:00`;
         const dateTime = new Date(dateTimeString);
     
         await add_appointment(
@@ -88,27 +89,28 @@ export default function Page() {
             dateTime,
             fromDate,
             toDate,
-            time,
-            dateOption,
+            startTime,
+            endTime,
+            fromDate !== toDate ? dateOption : null, // dateOption nur übergeben, wenn nötig
             selectedOption === "option2" ? todoItems : null
         );
     
-        
-
         const newAppointment = {
             fromDate,
             toDate,
             description: selectedOption !== "option2" ? description : null,
-            time: selectedOption !== "option2" && fromDate === toDate ? time : null,
+            startTime: selectedOption !== "option2" && fromDate === toDate ? startTime : null,
+            endTime: selectedOption !== "option2" && fromDate === toDate ? endTime : null,
             dateOption: selectedOption !== "option2" && fromDate !== toDate ? dateOption : null,
             todoItems: selectedOption === "option2" ? todoItems : null
         };
-
+    
         setAppointments([...appointments, newAppointment]);
         setConfirmation("Appointment saved successfully!");
         setFromDate("");
         setToDate("");
-        setTime("");
+        setStartTime("");
+        setEndTime("");
         setDescription("");
         setTodoItems([]);
         setDateOption("fullDay");
@@ -137,7 +139,7 @@ export default function Page() {
         setIsEditModalOpen(false);
     };
 
-    const add_appointment = async (username, title, description, date, fromDate, toDate, time, dateOption, todoItems) => {
+    const add_appointment = async (username, title, description, date, fromDate, toDate, startTime, endTime, dateOption, todoItems) => {
         const t = localStorage.getItem("authToken");
         const response = await fetch("/api/add-appointment", {
             method: "POST",
@@ -145,20 +147,21 @@ export default function Page() {
                 "Authorization": `Bearer ${t}`,
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({  
+            body: JSON.stringify({
                 username,
                 title,
                 description,
                 date,
                 fromDate,
                 toDate,
-                time,
-                dateOption,
+                startTime,
+                endTime,
+                dateOption: fromDate !== toDate ? dateOption : null, // dateOption nur übergeben, wenn nötig
                 todoItems,
                 token: t
             }),
         });
-
+    
         const result = await response.json();
     };
 
@@ -184,7 +187,8 @@ const get_appointments = async (username) => {
     const appointments_arr = appointments.map(appointment => ({
         fromDate: appointment.from_date,
         toDate: appointment.to_date,
-        time: appointment.time,
+        startTime: appointment.start_time,
+        endTime: appointment.end_time,
         description: appointment.description,
         dateOption: appointment.date_option,
         todoItems: appointment.todo_items
@@ -283,7 +287,7 @@ const get_appointments = async (username) => {
                                 </div>
                             ) : (
                                 <p>
-                                    {appt.time ? `${appt.time} - ` : ""}
+                                    {appt.startTime && appt.endTime ? `${appt.startTime} - ${appt.endTime} - ` : ""}
                                     {appt.description}
                                     {appt.dateOption ? ` (${appt.dateOption})` : ""}
                                 </p>
@@ -334,20 +338,26 @@ const get_appointments = async (username) => {
 
                             {/* Bedingte Anzeige des dritten Inputs */}
                             {selectedOption !== "option2" && fromDate === toDate ? (
+                            <div className="timeInputContainer">
                                 <label className="InputFontStacked">
-                                    Time:
-                                    <input type="time" value={time} onChange={(e) => setTime(e.target.value)} />
+                                    Start Time:
+                                    <input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} />
                                 </label>
-                            ) : selectedOption !== "option2" ? (
                                 <label className="InputFontStacked">
-                                    Option:
-                                    <select value={dateOption} onChange={(e) => setDateOption(e.target.value)}>
-                                        <option value="fullDay">Full Day</option>
-                                        <option value="halfDay">First Half of Day</option>
-                                        <option value="halfDay">Second Half of Day</option>
-                                    </select>
+                                    End Time:
+                                    <input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} />
                                 </label>
-                            ) : null}
+                            </div>
+                        ) : selectedOption !== "option2" ? (
+                            <label className="InputFontStacked">
+                                Option:
+                                <select value={dateOption} onChange={(e) => setDateOption(e.target.value)}>
+                                    <option value="fullDay">Full Day</option>
+                                    <option value="halfDay">First Half of Day</option>
+                                    <option value="halfDay">Second Half of Day</option>
+                                </select>
+                            </label>
+                        ) : null}
                         </div>
 
                         {/* To-Do Punkte oder Beschreibung */}

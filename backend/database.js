@@ -2,7 +2,7 @@ const sqlite3 = require('sqlite3').verbose();
 const crypto = require('crypto');
 
 // Datenbank initialisieren
-const db = new sqlite3.Database('./userDatabase.db', (err) => {
+const db = new sqlite3.Database('./database.db', (err) => {
     if (err) {
         console.error('Error opening database:', err.message);
         process.exit(1);
@@ -28,7 +28,8 @@ function createTable() {
             date DATE,
             from_date TEXT,
             to_date TEXT,
-            time TEXT,
+            start_time TEXT,
+            end_time TEXT,
             date_option TEXT,
             todo_items TEXT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -185,26 +186,35 @@ async function getUserIdByUsername(username) {
     });
 }
 
-async function addAppointment(username, title, description, date, fromDate, toDate, time, dateOption, todoItems)
- {
+async function addAppointment(username, title, description, date, fromDate, toDate, startTime, endTime, dateOption, todoItems) {
     const accountId = await getUserIdByUsername(username);
     if (!accountId) {
         throw new Error('User not found');
     }
+
+    let query = `
+        INSERT INTO Appointments (account_id, title, description, date, from_date, to_date, start_time, end_time, todo_items)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+    let values = [accountId, title, description, date, fromDate, toDate, startTime, endTime, JSON.stringify(todoItems)];
+
+    if (dateOption) {
+        query = `
+            INSERT INTO Appointments (account_id, title, description, date, from_date, to_date, start_time, end_time, date_option, todo_items)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `;
+        values.push(dateOption);
+    }
+
     return new Promise((resolve, reject) => {
-        db.run(
-            `INSERT INTO Appointments (account_id, title, description, date, from_date, to_date, time, date_option, todo_items)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [accountId, title, description, date, fromDate, toDate, time, dateOption, JSON.stringify(todoItems)],
-            function (err) { 
-                if (err) {
-                    console.error('Error adding appointment:', err);
-                    reject(err);
-                } else {
-                    resolve(this.lastID);
-                }
+        db.run(query, values, function (err) {
+            if (err) {
+                console.error('Error adding appointment:', err);
+                reject(err);
+            } else {
+                resolve(this.lastID);
             }
-        );
+        });
     });
 }
 
