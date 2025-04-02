@@ -11,8 +11,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Create Next App",
-  description: "Gnerated by create next app",
+  title: "Dashboard | Planungssoftwarwe",
+  description: "DHBW Project",
 };
 
 export default function RootLayout({ children }) {
