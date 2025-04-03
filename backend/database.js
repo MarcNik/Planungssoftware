@@ -70,7 +70,7 @@ async function doesUsernameExist(username) {
 // Prüfen, ob eine E-Mail existiert
 async function doesEmailExist(email) {
     const query = `SELECT COUNT(*) AS count FROM Users WHERE email = ?`;
-    
+
     try {
         const row = await new Promise((resolve, reject) => {
             db.get(query, [email], (err, row) => {
@@ -78,7 +78,7 @@ async function doesEmailExist(email) {
                 else resolve(row);
             });
         });
-        
+
         return row.count > 0;
     } catch (err) {
         return false;
@@ -119,7 +119,7 @@ async function getPasswordHashFromDB(username) {
             throw new Error('User not found');
         }
 
-        return row.password; 
+        return row.password;
     } catch (err) {
         console.error('Fehler beim Abrufen des Passwort-Hashes:', err.message);
         throw err;
@@ -140,7 +140,7 @@ async function get2FAStatus(username) {
             throw new Error('User not found');
         }
 
-        return row.Is2FAEnabled; 
+        return row.Is2FAEnabled;
     } catch (err) {
         console.error('Fehler beim Abrufen des 2FA-Status:', err.message);
         throw err;
@@ -161,7 +161,7 @@ async function getEmail(username) {
             throw new Error('User not found');
         }
 
-        return row.email; 
+        return row.email;
     } catch (err) {
         console.error('Fehler beim Abrufen der E-Mail:', err.message);
         throw err;
@@ -193,18 +193,19 @@ async function addAppointment(username, title, description, date, fromDate, toDa
     }
 
     let query = `
-        INSERT INTO Appointments (account_id, title, description, date, from_date, to_date, start_time, end_time, todo_items)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `;
+    INSERT INTO Appointments (account_id, title, description, date, from_date, to_date, start_time, end_time, todo_items)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+`;
     let values = [accountId, title, description, date, fromDate, toDate, startTime, endTime, JSON.stringify(todoItems)];
 
     if (dateOption) {
         query = `
-            INSERT INTO Appointments (account_id, title, description, date, from_date, to_date, start_time, end_time, date_option, todo_items)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `;
-        values.push(dateOption);
+        INSERT INTO Appointments (account_id, title, description, date, from_date, to_date, start_time, end_time, date_option, todo_items)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+        values = [accountId, title, description, date, fromDate, toDate, startTime, endTime, dateOption, JSON.stringify(todoItems)];
     }
+
 
     return new Promise((resolve, reject) => {
         db.run(query, values, function (err) {

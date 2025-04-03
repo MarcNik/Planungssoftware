@@ -31,7 +31,7 @@ export default function Page() {
 
     // Beim Laden der Seite: Benutzerdaten laden
     useEffect(() => {
-        
+
         const storedUsername = localStorage.getItem("username");
         if (!storedUsername) {
             router.push("https://localhost:5001/");
@@ -56,6 +56,11 @@ export default function Page() {
                 // Hier könntest du eine Fehlermeldung anzeigen, aber nicht weiterleiten
             });
 
+        const storedCompleted = localStorage.getItem("completedTodos");
+        if (storedCompleted) {
+            setCompletedTodos(JSON.parse(storedCompleted));
+        }
+
         get_appointments(storedUsername);
     }, [router]);
 
@@ -78,10 +83,10 @@ export default function Page() {
             setConfirmation("Please fill in all fields to save an appointment.");
             return;
         }
-    
+
         const dateTimeString = `${fromDate}T${startTime}:00`;
         const dateTime = new Date(dateTimeString);
-    
+
         await add_appointment(
             username,
             "Appointment",
@@ -94,7 +99,7 @@ export default function Page() {
             fromDate !== toDate ? dateOption : null, // dateOption nur übergeben, wenn nötig
             selectedOption === "option2" ? todoItems : null
         );
-    
+
         const newAppointment = {
             fromDate,
             toDate,
@@ -104,7 +109,7 @@ export default function Page() {
             dateOption: selectedOption !== "option2" && fromDate !== toDate ? dateOption : null,
             todoItems: selectedOption === "option2" ? todoItems : null
         };
-    
+
         setAppointments([...appointments, newAppointment]);
         setConfirmation("Appointment saved successfully!");
         setFromDate("");
@@ -141,7 +146,7 @@ export default function Page() {
 
     const add_appointment = async (username, title, description, date, fromDate, toDate, startTime, endTime, dateOption, todoItems) => {
         const t = localStorage.getItem("authToken");
-        const response = await fetch("/api/add-appointment", {
+        const response = await fetch("https://localhost:5001/api/add-appointment", {
             method: "POST",
             headers: {
                 "Authorization": `Bearer ${t}`,
@@ -156,49 +161,50 @@ export default function Page() {
                 toDate,
                 startTime,
                 endTime,
-                dateOption: fromDate !== toDate ? dateOption : null, // dateOption nur übergeben, wenn nötig
+                dateOption,
                 todoItems,
                 token: t
             }),
         });
-    
+
+
         const result = await response.json();
     };
 
 
-const get_appointments = async (username) => {
-    const response = await fetch("/api/get-appointment", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ username }),
-    });
+    const get_appointments = async (username) => {
+        const response = await fetch("/api/get-appointment", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ username }),
+        });
 
-    const result = await response.json();
+        const result = await response.json();
 
-    if (!response.ok) {
-        console.error("Fehler beim Abrufen der Termine:", result.error);
-        return;
-    }
+        if (!response.ok) {
+            console.error("Fehler beim Abrufen der Termine:", result.error);
+            return;
+        }
 
-    const appointments = result.appointments || [];
+        const appointments = result.appointments || [];
 
-    const appointments_arr = appointments.map(appointment => ({
-        fromDate: appointment.from_date,
-        toDate: appointment.to_date,
-        startTime: appointment.start_time,
-        endTime: appointment.end_time,
-        description: appointment.description,
-        dateOption: appointment.date_option,
-        todoItems: appointment.todo_items
-    }));
+        const appointments_arr = appointments.map(appointment => ({
+            fromDate: appointment.from_date,
+            toDate: appointment.to_date,
+            startTime: appointment.start_time,
+            endTime: appointment.end_time,
+            description: appointment.description,
+            dateOption: appointment.date_option,
+            todoItems: appointment.todo_items
+        }));
 
-    setAppointments(appointments_arr);
-};
+        setAppointments(appointments_arr);
+    };
 
-    
-    
+
+
 
     return (
         <div className="dashboardContainer">
@@ -272,11 +278,15 @@ const get_appointments = async (username) => {
                                                     type="checkbox"
                                                     checked={completedTodos[`${index}-${taskIndex}`] || false}
                                                     onChange={() => {
-                                                        setCompletedTodos(prev => ({
-                                                            ...prev,
-                                                            [`${index}-${taskIndex}`]: !prev[`${index}-${taskIndex}`]
-                                                        }));
+                                                        const key = `${index}-${taskIndex}`;
+                                                        const updated = {
+                                                            ...completedTodos,
+                                                            [key]: !completedTodos[key]
+                                                        };
+                                                        setCompletedTodos(updated);
+                                                        localStorage.setItem("completedTodos", JSON.stringify(updated)); // ✅ Speichern
                                                     }}
+
                                                 />
                                                 <span className={completedTodos[`${index}-${taskIndex}`] ? "completed" : ""}>
                                                     {task}
@@ -338,26 +348,26 @@ const get_appointments = async (username) => {
 
                             {/* Bedingte Anzeige des dritten Inputs */}
                             {selectedOption !== "option2" && fromDate === toDate ? (
-                            <div className="timeInputContainer">
+                                <div className="timeInputContainer">
+                                    <label className="InputFontStacked">
+                                        Start Time:
+                                        <input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} />
+                                    </label>
+                                    <label className="InputFontStacked">
+                                        End Time:
+                                        <input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} />
+                                    </label>
+                                </div>
+                            ) : selectedOption !== "option2" ? (
                                 <label className="InputFontStacked">
-                                    Start Time:
-                                    <input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} />
+                                    Option:
+                                    <select value={dateOption} onChange={(e) => setDateOption(e.target.value)}>
+                                        <option value="fullDay">Full Day</option>
+                                        <option value="halfDay">First Half of Day</option>
+                                        <option value="halfDay">Second Half of Day</option>
+                                    </select>
                                 </label>
-                                <label className="InputFontStacked">
-                                    End Time:
-                                    <input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} />
-                                </label>
-                            </div>
-                        ) : selectedOption !== "option2" ? (
-                            <label className="InputFontStacked">
-                                Option:
-                                <select value={dateOption} onChange={(e) => setDateOption(e.target.value)}>
-                                    <option value="fullDay">Full Day</option>
-                                    <option value="halfDay">First Half of Day</option>
-                                    <option value="halfDay">Second Half of Day</option>
-                                </select>
-                            </label>
-                        ) : null}
+                            ) : null}
                         </div>
 
                         {/* To-Do Punkte oder Beschreibung */}
