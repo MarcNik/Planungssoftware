@@ -9,7 +9,8 @@
     "cypress": "^14.2.1",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
-    "jest-transform-stub": "^2.0.0"
+    "jest-transform-stub": "^2.0.0",
+    "supertest": "^7.1.0"
   },
   "scripts": {
     "test": "jest"
