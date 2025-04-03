@@ -3,6 +3,6 @@
 cd ./frontend
 npm install
 cd ../backend
-npm install
+npm install && npm install aws-sdk && npm install dotenv
 node database.js
 node index.js 
