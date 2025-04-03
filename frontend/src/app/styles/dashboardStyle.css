@@ -57,6 +57,11 @@ body {
     margin-bottom: 10px;
 }
 
+.appointmentItem.absence {
+    background-color: #4b1e1e; /* sanftes dunkles Rot */
+    border: 1px solid #ffaaaa;
+}
+
 /* Kalender-Button und Kalender */
 .calendarButton {
     background: linear-gradient(135deg, #6a11cb, #2575fc);
