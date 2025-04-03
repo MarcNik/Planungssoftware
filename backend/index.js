@@ -153,20 +153,33 @@ app.prepare().then(() => {
 
 
     server.post("/api/add-appointment", async (req, res) => {
-        const { title, description, date, fromDate, toDate, time, dateOption, todoItems, username } = req.body;
+        const {
+            title,
+            description,
+            date,
+            fromDate,
+            toDate,
+            startTime,
+            endTime,
+            dateOption,
+            todoItems,
+            username
+        } = req.body;
+        
+
         if (!username || !title || (!date && (!fromDate || !toDate))) {
             return res.status(400).json({ error: "Required fields missing: username, title, date or fromDate" });
         }
 
-
         try {
-            await addAppointment(username, title, description, date, fromDate, toDate, time, dateOption, todoItems);
+            await addAppointment(username, title, description, date, fromDate, toDate, startTime, endTime, dateOption, todoItems);
             return res.status(201).json({ message: "Appointment added successfully." });
         } catch (err) {
             console.error("Fehler beim Hinzufügen des Termins:", err.message);
             return res.status(500).json({ error: "Internal Server Error." });
         }
     });
+
 
     server.post("/api/get-appointment", async (req, res) => {
         const { username } = req.body;
