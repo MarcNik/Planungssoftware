@@ -11,7 +11,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Create Next App",
+  title: "Login | Planungssoftware",
   description: "Gnerated by create next app",
 };
 

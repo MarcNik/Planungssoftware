@@ -1,0 +1,42 @@
+config:
+  target: 'https://localhost:5001'  # Setze hier den URL deiner API
+  phases:
+    - duration: 300  # Dauer des Tests in Sekunden
+      arrivalRate: 10  # Anzahl der Anfragen pro Sekunde
+
+scenarios:
+  - name: "User Registration, Login and Appointment Creation"
+    flow:
+      - post:
+          url: "/api/register"
+          json:
+            email: "user@example.com"
+            password: "password123"
+            username: "testuser"
+            is2FAEnabled: true
+      - post:
+          url: "/api/login"
+          json:
+            username: "testuser"
+            password: "password123"
+      - post:
+          url: "/api/verify-2fa"
+          json:
+            tempToken: "someTempToken"
+            twoFACode: "123456"
+      - post:
+          url: "/api/add-appointment"
+          json:
+            username: "testuser"
+            title: "Meeting"
+            description: "Discuss project"
+            date: "2025-04-10"
+            time: "10:00"
+            fromDate: "2025-04-10"
+            toDate: "2025-04-10"
+            dateOption: "single"
+            todoItems: ["Prepare agenda"]
+      - post:
+          url: "/api/get-appointment"
+          json:
+            username: "testuser"
