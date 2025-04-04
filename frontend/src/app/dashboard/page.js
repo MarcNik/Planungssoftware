@@ -89,7 +89,7 @@ export default function Page() {
 
         await add_appointment(
             username,
-            "Appointment",
+            selectedOption === "option3" ? "Absence" : "Appointment",
             description,
             dateTime,
             fromDate,
@@ -107,8 +107,10 @@ export default function Page() {
             startTime: selectedOption !== "option2" && fromDate === toDate ? startTime : null,
             endTime: selectedOption !== "option2" && fromDate === toDate ? endTime : null,
             dateOption: selectedOption !== "option2" && fromDate !== toDate ? dateOption : null,
-            todoItems: selectedOption === "option2" ? todoItems : null
+            todoItems: selectedOption === "option2" ? todoItems : null,
+            title: selectedOption === "option3" ? "Absence" : "Appointment"
         };
+
 
         setAppointments([...appointments, newAppointment]);
         setConfirmation("Appointment saved successfully!");
@@ -173,7 +175,7 @@ export default function Page() {
 
 
     const get_appointments = async (username) => {
-        const response = await fetch("/api/get-appointment", {
+        const response = await fetch("https://localhost:5001/api/get-appointment", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -197,7 +199,8 @@ export default function Page() {
             endTime: appointment.end_time,
             description: appointment.description,
             dateOption: appointment.date_option,
-            todoItems: appointment.todo_items
+            todoItems: appointment.todo_items,
+            title: appointment.title
         }));
 
         setAppointments(appointments_arr);
@@ -265,10 +268,18 @@ export default function Page() {
                     .filter(appt => new Date(appt.toDate) >= new Date())
                     .sort((a, b) => new Date(a.fromDate) - new Date(b.fromDate))
                     .map((appt, index) => (
-                        <div key={index} className="appointmentItem">
+                        <div
+                            key={index}
+                            className={`appointmentItem ${appt.title === "Absence" ? "absence" : ""}`}
+                        >
                             <strong>{new Date(appt.fromDate).toLocaleDateString()} → {new Date(appt.toDate).toLocaleDateString()}</strong>
-                            {/* Hier wird der Termininhalt eingefügt */}
-                            {appt.todoItems && appt.todoItems.length > 0 ? (
+
+                            {/* Abwesenheiten */}
+                            {appt.title === "Absence" ? (
+                                <p className="absenceLabel">{appt.description}</p>
+
+                                // To-Do-Listen
+                            ) : appt.todoItems && Array.isArray(appt.todoItems) && appt.todoItems.length > 0 ? (
                                 <div>
                                     <strong>To-Do:</strong>
                                     <ul>
@@ -284,9 +295,8 @@ export default function Page() {
                                                             [key]: !completedTodos[key]
                                                         };
                                                         setCompletedTodos(updated);
-                                                        localStorage.setItem("completedTodos", JSON.stringify(updated)); // ✅ Speichern
+                                                        localStorage.setItem("completedTodos", JSON.stringify(updated));
                                                     }}
-
                                                 />
                                                 <span className={completedTodos[`${index}-${taskIndex}`] ? "completed" : ""}>
                                                     {task}
@@ -295,6 +305,8 @@ export default function Page() {
                                         ))}
                                     </ul>
                                 </div>
+
+                                // Normale Termine
                             ) : (
                                 <p>
                                     {appt.startTime && appt.endTime ? `${appt.startTime} - ${appt.endTime} - ` : ""}
@@ -305,6 +317,7 @@ export default function Page() {
                         </div>
                     ))}
             </div>
+
 
             {/* Kalender-Button und Kalender */}
             <button className="calendarButton" onClick={() => setShowCalendar(!showCalendar)}>
