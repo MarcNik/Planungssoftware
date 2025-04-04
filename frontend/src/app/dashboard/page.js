@@ -28,6 +28,9 @@ export default function Page() {
     const [todoItems, setTodoItems] = useState([]);
     const [completedTodos, setCompletedTodos] = useState({});
     const [showCalendar, setShowCalendar] = useState(false);
+    const [showConflictModal, setShowConflictModal] = useState(false);
+    const [pendingAppointment, setPendingAppointment] = useState(null);
+
 
     // Beim Laden der Seite: Benutzerdaten laden
     useEffect(() => {
@@ -84,6 +87,31 @@ export default function Page() {
             return;
         }
 
+        const newStart = new Date(`${fromDate}T${startTime || "00:00"}:00`);
+        const newEnd = new Date(`${toDate}T${endTime || "23:59"}:00`);
+
+        const isOverlapping = appointments.some((appt) => {
+            const apptStart = new Date(`${appt.fromDate}T${appt.startTime || "00:00"}:00`);
+            const apptEnd = new Date(`${appt.toDate}T${appt.endTime || "23:59"}:00`);
+
+            return newStart < apptEnd && newEnd > apptStart;
+        });
+
+        if (isOverlapping) {
+            setPendingAppointment({
+                fromDate,
+                toDate,
+                description,
+                startTime,
+                endTime,
+                dateOption,
+                todoItems: selectedOption === "option2" ? todoItems : null,
+                title: selectedOption === "option3" ? "Absence" : "Appointment"
+            });
+            setShowConflictModal(true);
+            return;
+        }
+
         const dateTimeString = `${fromDate}T${startTime}:00`;
         const dateTime = new Date(dateTimeString);
 
@@ -111,7 +139,6 @@ export default function Page() {
             title: selectedOption === "option3" ? "Absence" : "Appointment"
         };
 
-
         setAppointments([...appointments, newAppointment]);
         setConfirmation("Appointment saved successfully!");
         setFromDate("");
@@ -123,6 +150,7 @@ export default function Page() {
         setDateOption("fullDay");
         setIsModalOpen(false);
     };
+
 
     const handleCalendarChange = (selectedDate) => {
         const formattedDate = formatDateToLocal(selectedDate);
@@ -419,6 +447,43 @@ export default function Page() {
                     </div>
                 </div>
             )}
+
+            {showConflictModal && (
+                <div className="modalOverlay">
+                    <div className="modalContent modalCalendar">
+                        <h2>Zeitüberschneidung</h2>
+                        <p>Der Termin überschneidet sich mit einem bestehenden. Möchtest du ihn trotzdem speichern?</p>
+                        <div className="modalButtons">
+                            <button className="ButtonDesign" onClick={async () => {
+                                const dateTime = new Date(`${pendingAppointment.fromDate}T${pendingAppointment.startTime}:00`);
+                                await add_appointment(
+                                    username,
+                                    pendingAppointment.title,
+                                    pendingAppointment.description,
+                                    dateTime,
+                                    pendingAppointment.fromDate,
+                                    pendingAppointment.toDate,
+                                    pendingAppointment.startTime,
+                                    pendingAppointment.endTime,
+                                    pendingAppointment.dateOption,
+                                    pendingAppointment.todoItems
+                                );
+
+                                setAppointments([...appointments, pendingAppointment]);
+                                setShowConflictModal(false);
+                                setIsModalOpen(false);
+                            }}>Trotzdem speichern</button>
+
+                            <button className="ButtonDesign" onClick={() => {
+                                setShowConflictModal(false);
+                            }}>Zurück</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
         </div>
+
+
     );
 }
