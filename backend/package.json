@@ -16,7 +16,6 @@
     "jsonwebtoken": "^9.0.2",
     "next": "^15.2.4",
     "nodemailer": "^6.10.0",
-    "resend": "^4.2.0",
     "sqlite3": "^5.1.7"
   },
   "description": ""

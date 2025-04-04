@@ -1,12 +1,10 @@
-const { Resend } = require('resend');
-const resend = new Resend('re_cvjgKjF8_2oaLzKSo495epk3VF9dwLYg7');
 const express = require("express");
 const next = require("next");
 const path = require("path");
 const https = require("https");
 const fs = require("fs");
 const { create2FACode, createTempToken } = require("./2FA.js");
-
+const nodemailer = require("nodemailer");
 
 const {
     createTable,
@@ -44,24 +42,35 @@ app.prepare().then(() => {
 
 
     // Funktion zum Senden des 2FA-Codes
-    async function send2FACode(email, code) {
-        try {
-            const { data, error } = await resend.emails.send({
-                from: 'noreply@resend.dev', // funktioniert ohne Domainverifizierung
-                to: email,
-                subject: 'Dein 2FA-Code',
-                text: `Hallo,\n\nDein 2FA-Code lautet: ${code}\n\nDieser Code ist nur für dich bestimmt.`,
-            });
-
-            if (error) {
-                console.error('Fehler beim E-Mail-Versand mit Resend:', error);
-            } else {
-                console.log('2FA E-Mail gesendet mit Resend:', data);
-            }
-        } catch (err) {
-            console.error('Fehler beim Senden via Resend:', err);
+    const transporter = nodemailer.createTransport({
+        host: "smtp.ionos.de",
+        port: 587,
+        secure: false,
+        auth: {
+          user: "noreply@djokic.eu",     
+          pass: "PASSWORT",    //Hier passwort eingeben
+        },
+        tls: {
+          rejectUnauthorized: false,
         }
-    }
+      });
+      
+      function send2FACode(email, code) {
+        const mailOptions = {
+          from: '"Dein System" <noreply@djokic.eu>',
+          to: email,
+          subject: "Dein 2FA-Code",
+          text: `Hallo,\n\nDein 2FA-Code lautet: ${code}\n\nBitte gib diesen in der App ein.`,
+        };
+      
+        transporter.sendMail(mailOptions, (err, info) => {
+          if (err) {
+            console.error("Fehler beim Senden:", err);
+          } else {
+            console.log("2FA-E-Mail gesendet:", info.response);
+          }
+        });
+      }
 
 
 
