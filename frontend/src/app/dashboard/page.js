@@ -451,8 +451,8 @@ export default function Page() {
             {showConflictModal && (
                 <div className="modalOverlay">
                     <div className="modalContent modalCalendar">
-                        <h2>Zeitüberschneidung</h2>
-                        <p>Der Termin überschneidet sich mit einem bestehenden. Möchtest du ihn trotzdem speichern?</p>
+                        <h2>Time Conflict</h2>
+                        <p>This appointment overlaps with an existing one. Do you want to save it anyway?</p>
                         <div className="modalButtons">
                             <button className="ButtonDesign" onClick={async () => {
                                 const dateTime = new Date(`${pendingAppointment.fromDate}T${pendingAppointment.startTime}:00`);
@@ -472,11 +472,11 @@ export default function Page() {
                                 setAppointments([...appointments, pendingAppointment]);
                                 setShowConflictModal(false);
                                 setIsModalOpen(false);
-                            }}>Trotzdem speichern</button>
+                            }}>Save anyway</button>
 
                             <button className="ButtonDesign" onClick={() => {
                                 setShowConflictModal(false);
-                            }}>Zurück</button>
+                            }}>Go Back</button>
                         </div>
                     </div>
                 </div>
